@@ -1,0 +1,130 @@
+envVarGroups:
+  - name: i9000-vars-prod
+    envVars:
+      - key: AUTH_TOKEN
+        generateValue: true
+      - key: API_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: CLOUDFRONT_KEYPAIR_ID
+        sync: false
+      - key: CLOUDFRONT_PRIVATE_KEY
+        sync: false
+      - key: CLOUDFRONT_URL
+        sync: false
+      - key: LASTFM_API_KEY
+        sync: false
+      - key: LASTFM_API_SECRET
+        sync: false
+      - key: LASTFM_USERNAME
+        sync: false
+      - key: LASTFM_SESSION_KEY
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-2
+      - key: SENTRY_DSN
+        sync: false
+      - key: USERNAME
+        sync: false
+      - key: PASSWORD
+        sync: false
+      - key: BUCKET_NAME
+        sync: false
+      - key: DOMAIN_NAME
+        sync: false
+      - key: MUSICBRAINZ_APP_NAME
+        sync: false
+      - key: MUSICBRAINZ_APP_VERSION
+        sync: false
+      - key: MUSICBRAINZ_CONTACT
+        sync: false
+
+services:
+  - type: web
+    name: i9000-graphile-prod
+    env: node
+    buildCommand: cd graphile && npm install --omit=dev && npm run build
+    startCommand: cd graphile && npm start
+    region: ohio
+    plan: starter
+    envVars:
+      - fromGroup: i9000-vars-prod
+      - key: NODE_VERSION
+        value: 18.15.0
+      - key: ENV
+        value: prod
+      - key: NODE_TLS_REJECT_UNAUTHORIZED
+        value: 0
+    buildFilter:
+      paths:
+        - graphile/**
+
+  - type: web
+    name: i9000-api-prod
+    env: docker
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./api
+    region: ohio
+    plan: starter
+    envVars:
+      - fromGroup: i9000-vars-prod
+      - key: ENV
+        value: prod
+      - key: GRAPHQL_HOST
+        fromService:
+          name: i9000-graphile-prod
+          type: web
+          property: host
+    buildFilter:
+      paths:
+        - api/**
+
+  - type: web
+    name: i9000-svelte-prod
+    env: static
+    buildCommand: cd svelte; npm install && npm run build
+    staticPublishPath: ./svelte/dist
+    # domains:
+    #   - example.com
+    #   - www.example.com
+    envVars:
+      - key: NODE_VERSION
+        value: 18.15.0
+      - key: VITE_ENV
+        value: prod
+      - key: VITE_API_HOST
+        fromService:
+          name: i9000-api-prod
+          type: web
+          property: host
+      - key: VITE_SENTRY_AUTH_TOKEN
+        sync: false
+      - key: VITE_SENTRY_DSN
+        sync: false
+      - key: VITE_SENTRY_ORG
+        sync: false
+      - key: VITE_SENTRY_PROJECT
+        sync: false
+    buildFilter:
+      paths:
+        - svelte/**
+
+  - type: cron
+    name: mb-check
+    env: python
+    schedule: "*/15 * * * *"
+    autoDeploy: false
+    buildCommand: echo "none"
+    startCommand: 'curl -XPOST "https://${API_HOST}.onrender.com/mb/check" --header "x-api-key: ${API_KEY}"'
+    envVars:
+      - fromGroup: i9000-vars-prod
+      - key: API_HOST
+        fromService:
+          name: i9000-api-prod
+          type: web
+          property: host

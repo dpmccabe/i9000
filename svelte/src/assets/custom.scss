@@ -1,0 +1,140 @@
+@use 'node_modules/@oddbird/blend';
+
+$genre-lightnesses: (
+  'darker': 20%,
+  'less-darker': 40%,
+  'regular': 78%,
+  'lighter': 92%,
+);
+
+$genre-chromas: (
+  'darker': 15,
+  'less-darker': 15,
+  'regular': 70,
+  'lighter': 15,
+);
+
+// https://css.land/lch/
+// midpoint hues: 0, 90, 180, 270 =>
+// midpoint hues: 30, 120, 210, 300
+$genre-hues: (
+  'jazz': 10,
+  'other': 50,
+  'world': 100,
+  'celtic': 140,
+  'classical': 300,
+);
+
+@function genre-lch-color($lightness, $chroma, $hue, $fallback: false) {
+  @if $fallback {
+    @return blend.lch($lightness $chroma $hue);
+  }
+
+  //noinspection SassScssResolvedByNameOnly
+  @return lch($lightness $chroma $hue);
+}
+
+#everything #aside-main main #player {
+  @each $genre, $hue in $genre-hues {
+    &.#{$genre} {
+      ul#player-buttons li button,
+      #currently-playing
+        #current-track-info
+        #current-artist-and-qp
+        #queue-position
+        a {
+        color: genre-lch-color(
+          map-get($genre-lightnesses, 'lighter'),
+          map-get($genre-chromas, 'lighter'),
+          $hue,
+          true
+        );
+        color: genre-lch-color(
+          map-get($genre-lightnesses, 'lighter'),
+          map-get($genre-chromas, 'lighter'),
+          $hue
+        );
+      }
+
+      #currently-playing #scrubber #progress-bar {
+        background-color: genre-lch-color(
+          map-get($genre-lightnesses, 'darker'),
+          map-get($genre-chromas, 'darker'),
+          $hue,
+          true
+        );
+        background-color: genre-lch-color(
+          map-get($genre-lightnesses, 'darker'),
+          map-get($genre-chromas, 'darker'),
+          $hue
+        );
+
+        #completed {
+          background-color: genre-lch-color(
+            map-get($genre-lightnesses, 'lighter'),
+            map-get($genre-chromas, 'lighter'),
+            $hue,
+            true
+          );
+          background-color: genre-lch-color(
+            map-get($genre-lightnesses, 'lighter'),
+            map-get($genre-chromas, 'lighter'),
+            $hue
+          );
+        }
+      }
+    }
+  }
+}
+
+#everything #aside-main main #player,
+#play-queue table tr {
+  @each $genre, $hue in $genre-hues {
+    &.#{$genre} {
+      color: genre-lch-color(
+        map-get($genre-lightnesses, 'lighter'),
+        map-get($genre-chromas, 'lighter'),
+        $hue,
+        true
+      );
+      color: genre-lch-color(
+        map-get($genre-lightnesses, 'lighter'),
+        map-get($genre-chromas, 'lighter'),
+        $hue
+      );
+    }
+  }
+}
+
+table#tracks tr,
+table#albums tr {
+  @each $genre, $hue in $genre-hues {
+    &.#{$genre} {
+      color: genre-lch-color(
+        map-get($genre-lightnesses, 'lighter'),
+        map-get($genre-chromas, 'lighter'),
+        $hue,
+        true
+      );
+      color: genre-lch-color(
+        map-get($genre-lightnesses, 'lighter'),
+        map-get($genre-chromas, 'lighter'),
+        $hue
+      );
+
+      .genre {
+        color: genre-lch-color(
+          map-get($genre-lightnesses, 'regular'),
+          map-get($genre-chromas, 'regular'),
+          $hue,
+          true
+        );
+        color: genre-lch-color(
+          map-get($genre-lightnesses, 'regular'),
+          map-get($genre-chromas, 'regular'),
+          $hue
+        );
+      }
+    }
+  }
+}

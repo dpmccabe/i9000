@@ -1,0 +1,40 @@
+@use 'node_modules/@oddbird/blend';
+
+$highlight: blend.lch(78% 70 220);
+$highlight-less-darker: blend.lch(30% 70 220);
+$highlight-darker: blend.lch(25% 70 220);
+$highlight-darkest: blend.lch(17% 70 220);
+$yellow-star: #ffca28;
+
+$darkestest-gray: #111111;
+$darkest-gray: #1c1c1c;
+$dark-gray: #262626;
+$med-gray: #2d2d2d;
+$light-gray: #3a3a3a;
+$less-dark-gray: #444;
+$bright-gray: #505050;
+$dim-text: #888888;
+$gray-text: #aaaaaa;
+
+$release-types: (
+  'album',
+  'ep',
+  'remix',
+  'compilation',
+  'soundtrack',
+  'demo',
+  'mixtape-street',
+  'other'
+);
+
+// https://colorbrewer2.org/#type=qualitative&scheme=Set3&n=8
+$release-type-colors: (
+  #fed9a6,
+  #fbb4ae,
+  #b3cde3,
+  #ccebc5,
+  #decbe4,
+  #ffffcc,
+  #e5d8bd,
+  #dddddd
+);

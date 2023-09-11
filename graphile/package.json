@@ -1,0 +1,33 @@
+{
+  "name": "i9000-graphile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "ts-node index.ts",
+    "build": "tsc",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@graphile-contrib/pg-order-by-related": "^1.0.0",
+    "@graphile-contrib/pg-simplify-inflector": "^6.1.0",
+    "@spacefill/postgraphile-plugin-unaccented-text-search-filter": "^0.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "graphile-build": "^4.13.0",
+    "graphile-build-pg": "^4.13.0",
+    "graphile-utils": "^4.13.0",
+    "graphql": ">0.6.0 <16",
+    "postgraphile": "^4.13.0",
+    "postgraphile-plugin-connection-filter": "^2.3.0",
+    "postgraphile-plugin-many-create-update-delete": "^1.0.7",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.8",
+    "prettier": "^3.0.1"
+  }
+}

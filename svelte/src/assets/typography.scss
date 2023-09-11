@@ -1,0 +1,58 @@
+@use 'colors';
+
+body {
+  font-family: ui-sans-serif, 'SF Pro', 'San Francisco', 'Helvetica Neue',
+    sans-serif;
+  font-size: 11px;
+  color: colors.$gray-text;
+}
+
+.less-imp {
+  color: colors.$dim-text;
+}
+
+a {
+  color: white;
+
+  @media (hover: hover) {
+    &:hover {
+      color: white;
+      text-decoration: none;
+    }
+  }
+}
+
+span.hint {
+  color: colors.$dim-text;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+  color: white;
+}
+
+.autosized-text {
+  overflow: hidden;
+}
+
+span.slash {
+  display: inline-block;
+  transform: scale(0.8, 0.8);
+  margin: 0 3px;
+}
+
+.truncatable {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

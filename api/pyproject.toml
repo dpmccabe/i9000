@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["Devin McCabe <devin.mccabe@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.78.0"
+boto3 = "^1.20.24"
+pyacoustid = "^1.2.2"
+pandas = "^1.2.4"
+python-multipart = "^0.0.5"
+pylast = "^4.4.0"
+python-dotenv = "^0.19.2"
+mutagen = "^1.46.0"
+uvicorn = "^0.17.4"
+gunicorn = "^20.1.0"
+musicbrainzngs = "^0.7.1"
+psycopg2-binary = "^2.9.3"
+cryptography = "^37.0.4"
+audioread = {git = "https://github.com/beetbox/audioread.git", rev = "ff9535d"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

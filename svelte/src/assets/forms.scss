@@ -1,0 +1,172 @@
+@use 'colors';
+
+fieldset {
+  border: none;
+  padding: 10px 0 0 0;
+  margin: 0;
+  border-top: colors.$bright-gray solid 1px;
+  position: relative;
+
+  &:before {
+    content: ' ';
+    top: -2px;
+    position: absolute;
+    width: 100%;
+    border-top: #000 solid 1px;
+  }
+
+  & + & {
+    margin-top: 25px;
+  }
+
+  legend {
+    position: absolute;
+    height: 13px;
+    line-height: 13px;
+    margin-top: -18px;
+    margin-left: 10px;
+    background-color: colors.$dark-gray;
+    display: inline-block;
+    padding: 0 2px;
+    font-size: 13px;
+  }
+}
+
+label {
+  font-size: 14px;
+}
+
+select {
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #ccc !important;
+  font-size: 15px;
+  padding: 0 4px;
+  font-family: ui-sans-serif, 'SF Pro', 'San Francisco', 'Helvetica Neue',
+    sans-serif;
+
+  option {
+    color: #ccc !important;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: colors.$bright-gray;
+      }
+    }
+
+    &:checked {
+      color: colors.$dark-gray !important;
+      background: linear-gradient(0deg, #888 0%, #888 100%) !important;
+    }
+  }
+}
+
+input[type='text'],
+input[type='number'],
+input[type='password'] {
+  background-color: colors.$light-gray;
+  color: white;
+  height: 30px;
+  font-size: 15px;
+  line-height: 30px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border: none;
+  border-radius: 5px;
+
+  &:focus {
+    outline: none;
+    background-color: colors.$bright-gray;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+textarea {
+  background-color: colors.$light-gray;
+  color: white;
+  font-size: 15px;
+  line-height: 30px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border: none;
+
+  &:focus {
+    outline: none;
+    background-color: colors.$bright-gray;
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+input[type='submit'],
+button[type='button'],
+button[type='submit'] {
+  background-color: colors.$highlight-darker;
+  color: white;
+  cursor: pointer;
+  border: none;
+  font-size: 25px;
+  padding: 5px 15px;
+  font-family: ui-sans-serif, 'SF Pro', 'San Francisco', 'Helvetica Neue',
+    sans-serif;
+  border-radius: 5px;
+  display: block;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: colors.$highlight-less-darker;
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: #999;
+    background-color: #444;
+  }
+
+  &.cancel {
+    background-color: colors.$bright-gray;
+
+    @media (hover: hover) {
+      &:hover {
+        background-color: #777;
+      }
+    }
+  }
+
+  & > svg.spin {
+    display: none;
+  }
+
+  &.working > svg.spin {
+    display: inline-block;
+  }
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: row;
+  margin: 1rem 0;
+
+  label {
+    display: flex;
+    flex-direction: row;
+
+    input[type='radio'] {
+      margin-right: 5px;
+    }
+  }
+
+  label + label {
+    margin-left: 1em;
+  }
+}
