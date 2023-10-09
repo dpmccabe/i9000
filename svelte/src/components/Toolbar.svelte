@@ -107,9 +107,7 @@
     <button
       title="Cut"
       class:active="{$cutOrCopy === 'cut'}"
-      disabled="{$view !== 'tracks' ||
-        $selectedTrackIds.size === 0 ||
-        $cutOrCopy == 'copy'}"
+      disabled="{$view !== 'tracks' || $cutOrCopy == 'copy'}"
       on:click|preventDefault="{() => maybeCutTracks()}">
       <Fa icon="{faCut}" fw />
     </button>
@@ -117,9 +115,7 @@
     <button
       title="Copy"
       class:active="{$cutOrCopy === 'copy'}"
-      disabled="{$view !== 'tracks' ||
-        $selectedTrackIds.size === 0 ||
-        $cutOrCopy === 'cut'}"
+      disabled="{$view !== 'tracks' || $cutOrCopy === 'cut'}"
       on:click|preventDefault="{() => maybeCopyTracks()}">
       <Fa icon="{faCopy}" fw />
     </button>
