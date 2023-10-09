@@ -170,7 +170,7 @@ export async function updatePlaylistTracks(
     true
   );
 
-  if (playlist.id === currentPlaylist.get()!.id) {
+  if (playlist.id === currentPlaylist.get()?.id) {
     trackSettings.touch();
   }
 
