@@ -50,7 +50,7 @@
 
         {#if $nValsActive + $nValsInactive > 0}
           <div class="values">
-            {#each normSort(Object.keys($valCountsIsActive.active)) as val}
+            {#each Object.keys($valCountsIsActive.active) as val}
               <a
                 role="button"
                 href="#top"
@@ -71,7 +71,7 @@
                 {$nValsInactive}</a>
             {/if}
 
-            {#each normSort(Object.keys($valCountsIsActive.inactive)) as val, i}
+            {#each Object.keys($valCountsIsActive.inactive) as val, i}
               <a
                 role="button"
                 href="#top"
@@ -102,7 +102,7 @@ import {
 import { createEventDispatcher, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { type DispatchOptions } from 'svelte/internal';
-import { clickOutside, escapeRegExp, narrow, normSort } from '../../internal';
+import { clickOutside, escapeRegExp, narrow } from '../../internal';
 import {
   derived,
   type Readable,

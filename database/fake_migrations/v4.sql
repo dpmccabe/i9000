@@ -3,16 +3,16 @@ BEGIN;
 drop view if exists albums cascade;
 drop view if exists releases cascade;
 
-ALTER TABLE mb_artists ALTER COLUMN name TYPE citext;
-ALTER TABLE mb_releases ALTER COLUMN title TYPE citext;
-ALTER TABLE playlist_folders ALTER COLUMN name TYPE citext;
-ALTER TABLE playlists ALTER COLUMN name TYPE citext;
-ALTER TABLE tracks ALTER COLUMN album_artist TYPE citext;
-ALTER TABLE tracks ALTER COLUMN artist TYPE citext;
-ALTER TABLE tracks ALTER COLUMN album TYPE citext;
-ALTER TABLE tracks ALTER COLUMN composer TYPE citext;
-ALTER TABLE tracks ALTER COLUMN grouping TYPE citext;
-ALTER TABLE tracks ALTER COLUMN title TYPE citext;
+ALTER TABLE mb_artists ALTER COLUMN name TYPE citext COLLATE "und-x-icu";
+ALTER TABLE mb_releases ALTER COLUMN title TYPE citext COLLATE "und-x-icu";
+ALTER TABLE playlist_folders ALTER COLUMN name TYPE citext COLLATE "und-x-icu";
+ALTER TABLE playlists ALTER COLUMN name TYPE citext COLLATE "und-x-icu";
+ALTER TABLE tracks ALTER COLUMN album_artist TYPE citext COLLATE "und-x-icu";
+ALTER TABLE tracks ALTER COLUMN artist TYPE citext COLLATE "und-x-icu";
+ALTER TABLE tracks ALTER COLUMN album TYPE citext COLLATE "und-x-icu";
+ALTER TABLE tracks ALTER COLUMN composer TYPE citext COLLATE "und-x-icu";
+ALTER TABLE tracks ALTER COLUMN grouping TYPE citext COLLATE "und-x-icu";
+ALTER TABLE tracks ALTER COLUMN title TYPE citext COLLATE "und-x-icu";
 
 CREATE VIEW albums AS
     SELECT min(t.id) AS id,
