@@ -74,7 +74,7 @@ interface TabSettingsInit {
   staticAggs?: string;
 }
 
-const noneAggKey = '(none)';
+export const noneAggKey = '(none)';
 
 function tokenizeText(searchText: string): string[] {
   let theSearchText: string = searchText.trim();

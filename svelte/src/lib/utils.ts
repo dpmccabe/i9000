@@ -2,6 +2,7 @@ import { toast } from '@zerodevx/svelte-toast';
 import { DateTime } from 'luxon';
 import {
   type MessageType,
+  noneAggKey,
   type Track,
   type TrackGroup,
   unaccent,
@@ -314,4 +315,16 @@ export function trimWithin(x: string) {
 
 export function normString(x: string): string {
   return unaccent(trimWithin(x.normalize('NFC').toLowerCase()));
+}
+
+export function normSort(arr: string[]): string[] {
+  return arr.sort((x: string, y: string): number => {
+    if (x === noneAggKey) {
+      return -1;
+    } else if (y === noneAggKey) {
+      return 1;
+    } else {
+      return x.localeCompare(y);
+    }
+  });
 }
