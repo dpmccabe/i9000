@@ -7,6 +7,9 @@ source .env
 echo "Emptying mp3 trash..."
 aws s3 rm s3://${BUCKET_NAME}/trash/ --recursive --profile ${AWS_PROFILE_NAME}
 
+echo "Emptying incoming folder..."
+aws s3 rm s3://${BUCKET_NAME}/incoming/ --recursive --profile ${AWS_PROFILE_NAME}
+
 echo "Syncing mp3s down..."
 aws s3 sync s3://${BUCKET_NAME}/mp3s ${BACKUP_PATH}/mp3s --delete --profile ${AWS_PROFILE_NAME}
 
