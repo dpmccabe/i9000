@@ -257,23 +257,48 @@ export abstract class TabSettings<T> {
           }
         );
       } else if ('values' in v && v.values!.size > 0) {
-        const filterK: string = this.tabFields[k].aggregateFlat
-          ? 'overlaps'
-          : 'in';
+        const rawValues: string[] = [...v.values!];
+        const nonNullRawValues: string[] = rawValues.filter(
+          (x: string): boolean => x !== noneAggKey
+        );
 
-        let values: (string | number)[];
+        const maybeNullFilters: {
+          or: (
+            | Record<string, { isNull: boolean }>
+            | Record<string, { in: (string | number)[] }>
+            | Record<string, { overlaps: (string | number)[] }>
+          )[];
+        } = { or: [] };
 
-        if (this.tabFields[k].isEnum) {
-          values = [...v.values!].map((v: string): string => v.toUpperCase());
-        } else if (this.tabFields[k].numeric) {
-          values = [...v.values!].map((v: string): number => parseInt(v));
-        } else {
-          values = [...v.values!];
+        if (nonNullRawValues.length < rawValues.length) {
+          maybeNullFilters['or'].push({ [k]: { isNull: true } });
         }
 
-        theFilterArgs.push({
-          [k]: { [filterK]: values },
-        });
+        if (nonNullRawValues.length > 0) {
+          let values: (string | number)[];
+
+          if (this.tabFields[k].isEnum) {
+            values = nonNullRawValues.map((v: string): string =>
+              v.toUpperCase()
+            );
+          } else if (this.tabFields[k].numeric) {
+            values = nonNullRawValues.map((v: string): number => parseInt(v));
+          } else {
+            values = nonNullRawValues;
+          }
+
+          if (this.tabFields[k].aggregateFlat) {
+            maybeNullFilters['or'].push({
+              [k]: { overlaps: values },
+            });
+          } else {
+            maybeNullFilters['or'].push({
+              [k]: { in: values },
+            });
+          }
+        }
+
+        theFilterArgs.push(maybeNullFilters);
       } else if ('text' in v) {
         for (const token of tokenizeText(v.text!)) {
           theFilterArgs.push({
