@@ -1,6 +1,11 @@
 import { toast } from '@zerodevx/svelte-toast';
 import { DateTime } from 'luxon';
-import { type MessageType, type Track, type TrackGroup } from '../internal';
+import {
+  type MessageType,
+  type Track,
+  type TrackGroup,
+  unaccent,
+} from '../internal';
 
 export function camelToScreamingSnakeCase(str: string): string {
   return str
@@ -305,4 +310,8 @@ export function objHas(obj: object, prop: PropertyKey): boolean {
 
 export function trimWithin(x: string) {
   return x.replace(/[\s\t]+/g, ' ').trim();
+}
+
+export function normString(x: string): string {
+  return unaccent(trimWithin(x.normalize('NFC').toLowerCase()));
 }

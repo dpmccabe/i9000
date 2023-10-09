@@ -1,5 +1,6 @@
 export * from './lib/interfaces';
 export * from './lib/availableCols';
+export * from './lib/unaccent';
 export * from './lib/utils';
 export * from './lib/db';
 export * from './lib/tab';

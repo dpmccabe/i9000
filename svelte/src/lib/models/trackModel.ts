@@ -15,6 +15,8 @@ import {
   formatDateTime,
   formatDuration,
   type GcrDuration,
+  type ImportArtistGenre,
+  normString,
   type TabField,
   TabSettings,
 } from '../../internal';
@@ -584,7 +586,9 @@ export async function getAllGenreNames(): Promise<string[]> {
   );
 }
 
-export async function getAllArtistGenres(): Promise<Map<string, string>> {
+export async function getAllArtistGenres(): Promise<
+  Map<string, ImportArtistGenre>
+> {
   const q = `
     query ArtistGenres {
       tracks(filter: {
@@ -602,8 +606,14 @@ export async function getAllArtistGenres(): Promise<Map<string, string>> {
 
   return new Map(
     res.tracks.groupedAggregates.map(
-      (x: { keys: [string, string] }): [string, string] => {
-        return x['keys'];
+      (x: { keys: [string, string] }): [string, ImportArtistGenre] => {
+        return [
+          normString(x['keys'][0]),
+          {
+            artist: x['keys'][0],
+            genre: x['keys'][1],
+          },
+        ];
       }
     )
   );

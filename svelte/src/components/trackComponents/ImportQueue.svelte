@@ -54,13 +54,14 @@ import {
   cleanImportQueue,
   clearImportingFn,
   getAllArtistGenres,
+  type ImportArtistGenre,
   importingMp3s,
   importTracks,
   removeFromImportQueue,
 } from '../../internal';
 import Modal from '../modalComponents/Modal.svelte';
 
-let artistGenres: Map<string, string>;
+let artistGenres: Map<string, ImportArtistGenre>;
 
 onMount(async (): Promise<void> => {
   artistGenres = await getAllArtistGenres();

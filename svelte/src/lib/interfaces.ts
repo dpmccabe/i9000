@@ -172,6 +172,11 @@ export interface RobotSettings {
   decayingCutsExp: number;
 }
 
+export interface ImportArtistGenre {
+  artist: string;
+  genre: string;
+}
+
 export type ImportState =
   | 'todo'
   | 'uploading'

@@ -2,10 +2,12 @@ import { DateTime } from 'luxon';
 import {
   appendTracksToPlaylist,
   appSettings,
+  type ImportArtistGenre,
   type ImportingMp3,
   type ImportState,
   insertTracks,
   logMessage,
+  normString,
   type Playlist,
   playlists,
   Track,
@@ -24,7 +26,7 @@ let importingFn: number | null = null;
 
 export function importTracks(
   files: File[],
-  artistGenres: Map<string, string>
+  artistGenres: Map<string, ImportArtistGenre>
 ): void {
   const impMap = new Map<string, ImportingMp3>();
 
@@ -51,7 +53,9 @@ export function importTracks(
   importingFn ||= window.setInterval(processImportQueue, 500, artistGenres);
 }
 
-function processImportQueue(artistGenres: Map<string, string>): void {
+function processImportQueue(
+  artistGenres: Map<string, ImportArtistGenre>
+): void {
   const stateCounts: Record<ImportState, number> = {
     todo: 0,
     uploading: 0,
@@ -124,7 +128,7 @@ function processImportQueue(artistGenres: Map<string, string>): void {
 
 async function importSingleTrack(
   file: File,
-  artistGenres: Map<string, string>
+  artistGenres: Map<string, ImportArtistGenre>
 ): Promise<Track> {
   const presign = await preSignUpload(file);
   await uploadToS3(presign, file);
@@ -133,6 +137,7 @@ async function importSingleTrack(
   const track: Track = applyId3Tags(
     tags,
     file.size,
+    // @ts-ignore
     file.filepath,
     artistGenres
   );
@@ -212,7 +217,7 @@ function applyId3Tags(
   tags: Record<string, number | string>,
   fileSize: number,
   filePath: string,
-  artistGenres: Map<string, string>
+  artistGenres: Map<string, ImportArtistGenre>
 ): Track {
   const now: number = DateTime.now().toMillis();
 
@@ -262,10 +267,13 @@ function applyId3Tags(
     }
   }
 
-  const existingGenre: string | undefined = artistGenres.get(track.artist!);
+  const existingArtistGenre: ImportArtistGenre | undefined = artistGenres.get(
+    normString(track.artist!)
+  );
 
-  if (existingGenre != null) {
-    track.genre = existingGenre;
+  if (existingArtistGenre != null) {
+    track.artist = existingArtistGenre.artist;
+    track.genre = existingArtistGenre.genre;
   } else if ('genre' in tags) {
     track.genre = trimWithin(tags.genre as string);
 
