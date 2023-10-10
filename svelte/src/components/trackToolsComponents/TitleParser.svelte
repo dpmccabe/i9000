@@ -89,6 +89,7 @@ const parsableFields: Record<string, string> = {
   artist: '%a',
   album: '%l',
   track: '%i',
+  disc: '%d',
   comments: '%c',
 };
 
@@ -188,6 +189,11 @@ const parsedTrackValues: Readable<TrackParseMod[]> = derived(
             new: parsedTrack.track || (t.trackI ?? '').toString(),
             changed: 'track' in parsedTrack,
           },
+          disc: {
+            old: (t.discI ?? '').toString(),
+            new: parsedTrack.disc || (t.discI ?? '').toString(),
+            changed: 'disc' in parsedTrack,
+          },
           comments: {
             old: t.comments ?? '',
             new: parsedTrack.comments || (t.comments ?? ''),
@@ -201,6 +207,7 @@ const parsedTrackValues: Readable<TrackParseMod[]> = derived(
         tpm.mod.artist.changed ||
         tpm.mod.album.changed ||
         tpm.mod.track.changed ||
+        tpm.mod.disc.changed ||
         tpm.mod.comments.changed;
 
       return tpm;
@@ -248,6 +255,9 @@ function parseTrack(track: Track, parts: string[]): Record<string, string> {
             break;
           case 'i':
             mod.track = title.substring(0, sepPos);
+            break;
+          case 'd':
+            mod.disc = title.substring(0, sepPos);
             break;
           case 'c':
             mod.comments = title.substring(0, sepPos);
@@ -310,6 +320,11 @@ async function updateTagsFromParsed(): Promise<void> {
       if (ptv.mod.track.changed) {
         id3Payload.tracknumber = ptv.mod.track.new;
         thisPatch.trackI = parseInt(ptv.mod.track.new);
+      }
+
+      if (ptv.mod.disc.changed) {
+        id3Payload.discnumber = ptv.mod.disc.new;
+        thisPatch.discI = parseInt(ptv.mod.disc.new);
       }
 
       if (ptv.mod.comments.changed) {
