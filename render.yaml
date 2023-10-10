@@ -115,7 +115,7 @@ services:
         - svelte/**
 
   - type: cron
-    name: mb-check
+    name: i9000-mb-check
     env: python
     schedule: "*/15 * * * *"
     autoDeploy: false
