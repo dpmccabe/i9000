@@ -1,10 +1,18 @@
 import {
+  activePane,
   type AppSettings,
   appSettings,
   authed,
+  cachedTrackIds,
   DB,
+  getOfflineMp3s,
+  getOrganizedPlaylists,
+  initPlayer,
   logMessage,
   objHas,
+  organizedPlaylists,
+  setCurrentPlaylist,
+  view,
 } from '../internal';
 
 async function applySettings(
@@ -59,6 +67,7 @@ export async function logInToApi(
       const settings: Record<string, string> = await res.json();
       await applySettings(settings);
       localStorage.setItem('auth', JSON.stringify(settings));
+      await postAuthSetup();
     } else {
       logMessage('Invalid username or password', 'error');
     }
@@ -69,4 +78,39 @@ export async function logInToApi(
       console.log(e);
     }
   }
+}
+
+export async function postAuthSetup(): Promise<void> {
+  activePane.set('main');
+  organizedPlaylists.set(await getOrganizedPlaylists());
+
+  if (import.meta.env.VITE_ENV !== 'dev') {
+    await Notification.requestPermission();
+  }
+
+  (document.activeElement as HTMLElement).blur();
+
+  if (window.location.hash.substring(1) === 'releases') {
+    view.set('releases');
+  } else if (window.location.hash.substring(1) === 'albums') {
+    view.set('albums');
+  } else {
+    const savedTrackSettingsItem: string | null =
+      localStorage.getItem('track-settings');
+
+    if (savedTrackSettingsItem != null) {
+      const savedTrackSettings: Record<string, any> = JSON.parse(
+        savedTrackSettingsItem
+      );
+
+      const playlistId: number | null = savedTrackSettings.playlistId;
+      if (playlistId != null) await setCurrentPlaylist(playlistId);
+    }
+
+    view.set('tracks');
+  }
+
+  cachedTrackIds.set(new Set(await getOfflineMp3s()));
+
+  await initPlayer();
 }

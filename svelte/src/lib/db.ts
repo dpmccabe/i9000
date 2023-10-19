@@ -2,7 +2,6 @@ import { GraphQLClient } from 'graphql-request';
 import { type GqlRequest, objHas } from '../internal';
 
 export class DB {
-  private static baseUrl: string;
   private static client: GraphQLClient;
   private static failedQueue: GqlRequest[];
   private static retryDelay = 1; // in seconds
@@ -11,7 +10,6 @@ export class DB {
 
   configure(graphqlUrl: string, graphqlAuthToken: string): void {
     DB.failedQueue = [];
-    DB.baseUrl = graphqlUrl;
     DB.client = new GraphQLClient([graphqlUrl, 'graphql'].join('/'), {
       headers: {
         authorization: ['Bearer', graphqlAuthToken].join(' '),
@@ -55,7 +53,7 @@ export async function db<T>(
   q: string,
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   variables: Record<string, any>,
-  queueable = false
+  queueable: boolean = false
 ): Promise<T> {
   try {
     if (!DB.online) await DB.processQueue();

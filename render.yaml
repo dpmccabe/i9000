@@ -93,6 +93,7 @@ services:
     #   - example.com
     #   - www.example.com
     envVars:
+      - fromGroup: i9000-vars-prod
       - key: NODE_VERSION
         value: 18.15.0
       - key: VITE_ENV

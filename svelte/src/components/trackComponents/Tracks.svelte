@@ -3,7 +3,7 @@
   class="{$extraTableClasses.join(' ')}"
   on:mouseleave="{removeDragClass}">
   <Tab
-    tabTitle="{$currentPlaylist?.name ?? ''}"
+    tabTitle="{$currentPlaylist?.name ?? 'Playlists'}"
     tabId="tracks"
     getNextResultsBatch="{() => getNextTrackResultsBatch()}"
     bind:settings="{$trackSettings}"

@@ -102,18 +102,13 @@ import TitleParser from './components/trackToolsComponents/TitleParser.svelte';
 import {
   activePane,
   authed,
-  cachedTrackIds,
   checkAuth,
-  getOfflineMp3s,
-  getOrganizedPlaylists,
-  initPlayer,
   keyboard,
   keyDown,
   keyUp,
   narrow,
-  organizedPlaylists,
   playingTrack,
-  setCurrentPlaylist,
+  postAuthSetup,
   short,
   view,
 } from './internal';
@@ -136,39 +131,7 @@ $: short.set(innerHeight <= 600);
 onMount(async (): Promise<void> => {
   await checkAuth();
   if (!$authed) return;
-
-  activePane.set('main');
-  organizedPlaylists.set(await getOrganizedPlaylists());
-
-  if (import.meta.env.VITE_ENV !== 'dev') {
-    await Notification.requestPermission();
-  }
-
-  (document.activeElement as HTMLElement).blur();
-
-  if (window.location.hash.substring(1) === 'releases') {
-    view.set('releases');
-  } else if (window.location.hash.substring(1) === 'albums') {
-    view.set('albums');
-  } else {
-    const savedTrackSettingsItem: string | null =
-      localStorage.getItem('track-settings');
-
-    if (savedTrackSettingsItem != null) {
-      const savedTrackSettings: Record<string, any> = JSON.parse(
-        savedTrackSettingsItem
-      );
-
-      const playlistId: number | null = savedTrackSettings.playlistId;
-      if (playlistId != null) await setCurrentPlaylist(playlistId);
-    }
-
-    view.set('tracks');
-  }
-
-  cachedTrackIds.set(new Set(await getOfflineMp3s()));
-
-  await initPlayer();
+  await postAuthSetup();
 });
 
 function focusWindow(): void {

@@ -27,6 +27,10 @@ let config = {
         start_url: '/index.html',
         background_color: '#1c1c1c',
         theme_color: '#1c1c1c',
+        id: 'i9000',
+        dir: 'ltr',
+        orientation: 'any',
+        categories: ['music'],
         display: 'standalone',
         display_override: ['window-controls-overlay'],
         icons: [
