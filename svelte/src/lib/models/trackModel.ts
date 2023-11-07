@@ -428,7 +428,7 @@ export class TrackSettings extends TabSettings<Track> {
       const totalDuration: number = parseInt(
         resp[this.queryName].aggregates.sum.duration
       );
-      content += `, ${formatDuration(totalDuration)}`;
+      content = [content, formatDuration(totalDuration)].join(' · ');
     }
 
     return content;

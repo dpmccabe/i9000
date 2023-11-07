@@ -48,7 +48,7 @@ $: {
       [
         `${$selectedTrackIds.size} tracks`,
         formatDuration(selectedTracksDuration),
-      ].join(', ')
+      ].join(' · ')
     );
   } else {
     statsContent.set($trackResults?.statsContent ?? '');
