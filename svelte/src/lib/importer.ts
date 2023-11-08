@@ -235,9 +235,9 @@ function applyId3Tags(
   let trackParts: string[];
   let discParts: string[];
 
-  if ('artist' in tags || 'albumArtist' in tags) {
-    track.artist = trimWithin((tags.artist ?? tags.albumArtist) as string);
-    track.albumArtist = trimWithin((tags.albumArtist ?? tags.artist) as string);
+  if ('artist' in tags || 'albumartist' in tags) {
+    track.artist = trimWithin((tags.artist ?? tags.albumartist) as string);
+    track.albumArtist = trimWithin((tags.albumartist ?? tags.artist) as string);
   }
 
   if ('album' in tags) track.album = trimWithin(tags.album as string);
@@ -267,45 +267,47 @@ function applyId3Tags(
     }
   }
 
-  const existingArtistGenre: ImportArtistGenre | undefined = artistGenres.get(
-    normString(track.artist!)
-  );
+  if (track.artist != null) {
+    const existingArtistGenre: ImportArtistGenre | undefined = artistGenres.get(
+      normString(track.artist!)
+    );
 
-  if (existingArtistGenre != null) {
-    track.artist = existingArtistGenre.artist;
-    track.genre = existingArtistGenre.genre;
-  } else if ('genre' in tags) {
-    track.genre = trimWithin(tags.genre as string);
+    if (existingArtistGenre != null) {
+      track.artist = existingArtistGenre.artist;
+      track.genre = existingArtistGenre.genre;
+    } else if ('genre' in tags) {
+      track.genre = trimWithin(tags.genre as string);
 
-    if (
-      [
-        'Classique',
-        'Chamber Music',
-        'Contemporary',
-        'Contemporary Classical',
-        'Opera',
-        'Orchestral',
-      ].includes(track.genre!)
-    ) {
-      track.genre = 'Classical';
-    } else if (
-      new RegExp(
+      if (
         [
-          'Rock',
-          'Pop',
-          'Electro',
-          'Alternative',
-          'Soundtrack',
-          'Indie',
-          'Experimental',
-          'Techno',
-          'Trip',
-          'Ambient',
-        ].join('|'),
-        'gi'
-      ).test(track.genre!)
-    ) {
-      track.genre = 'Other';
+          'Classique',
+          'Chamber Music',
+          'Contemporary',
+          'Contemporary Classical',
+          'Opera',
+          'Orchestral',
+        ].includes(track.genre!)
+      ) {
+        track.genre = 'Classical';
+      } else if (
+        new RegExp(
+          [
+            'Rock',
+            'Pop',
+            'Electro',
+            'Alternative',
+            'Soundtrack',
+            'Indie',
+            'Experimental',
+            'Techno',
+            'Trip',
+            'Ambient',
+          ].join('|'),
+          'gi'
+        ).test(track.genre!)
+      ) {
+        track.genre = 'Other';
+      }
     }
   }
 
