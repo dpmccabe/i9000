@@ -32,6 +32,7 @@ module.exports = {
   ],
   ignorePatterns: ['.eslintrc.cjs', 'vite.config.js'],
   rules: {
+    'no-constant-binary-expression': 'warn',
     'prettier/prettier': 'warn',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/consistent-type-imports': [
