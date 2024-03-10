@@ -20,8 +20,20 @@ pd.set_option("mode.chained_assignment", "raise")
 mp3s_folder = os.path.join(os.environ["BACKUP_PATH"], "mp3s")
 music_folder = os.path.join(os.environ["BACKUP_PATH"], "music")
 
+excluded_genres = os.environ["EXCLUDED_GENRES"].split("|")
+excluded_album_artists = os.environ["EXCLUDED_ALBUM_ARTISTS"].split("|")
+excluded_albums = os.environ["EXCLUDED_ALBUMS"].split("|")
+
 print("Getting tracks from DB...")
 tracks = get_tracks(os.environ["DATABASE_URL"])
+
+tracks = tracks.loc[
+    ~(
+        tracks["genre"].isin(excluded_genres)
+        | tracks["album_artist"].isin(excluded_album_artists)
+        | tracks["album"].isin(excluded_albums)
+    )
+]
 
 print(f"Getting contents of {mp3s_folder}")
 mp3_files = pd.DataFrame(glob(f"{mp3s_folder}/*.mp3"), columns=["path"], dtype="string")
