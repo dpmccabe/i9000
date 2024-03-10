@@ -27,14 +27,6 @@ excluded_albums = os.environ["EXCLUDED_ALBUMS"].split("|")
 print("Getting tracks from DB...")
 tracks = get_tracks(os.environ["DATABASE_URL"])
 
-tracks = tracks.loc[
-    ~(
-        tracks["genre"].isin(excluded_genres)
-        | tracks["album_artist"].isin(excluded_album_artists)
-        | tracks["album"].isin(excluded_albums)
-    )
-]
-
 print(f"Getting contents of {mp3s_folder}")
 mp3_files = pd.DataFrame(glob(f"{mp3s_folder}/*.mp3"), columns=["path"], dtype="string")
 mp3_files["id"] = mp3_files["path"].str.extract("([0-9 a-f]{40})")
@@ -59,6 +51,14 @@ tracks = tracks.join(
 tracks["mp3_path"] = mp3s_folder + "/" + tracks["id"] + ".mp3"
 tracks["sym_path"] = tracks.apply(make_sym_path, axis=1, music_folder=music_folder)
 tracks = tracks.drop(columns="track_i_max")
+
+tracks = tracks.loc[
+    ~(
+        tracks["genre"].isin(excluded_genres)
+        | tracks["album_artist"].isin(excluded_album_artists)
+        | tracks["album"].isin(excluded_albums)
+    )
+]
 
 print(f"Getting contents of {music_folder}")
 existing_symlink_files = glob(f"{music_folder}/**/*.mp3", recursive=True)
