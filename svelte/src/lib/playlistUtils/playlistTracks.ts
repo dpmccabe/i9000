@@ -8,9 +8,10 @@ import {
   getPlaylistTrackIds,
   insertPlaylistTracks,
   pivotRow,
+  playingPlaylist,
   playingTrack,
-  playlists,
   type Playlist,
+  playlists,
   type PlaylistTrack,
   playlistTracksHistoryIds,
   restoreFromPlaylistTracksHistory,
@@ -118,7 +119,7 @@ export async function trackMoveUpDown(dir: 'up' | 'down'): Promise<void> {
 export async function clearRecentlyPlayedTracks(
   playlist: Playlist | null = null
 ): Promise<void> {
-  const thePlaylist: Playlist = playlist ?? currentPlaylist.get()!;
+  const thePlaylist: Playlist = playlist ?? playingPlaylist.get()!;
 
   if ([allPlaylistName, 'Unaccompanied', 'Learn'].includes(thePlaylist?.name)) {
     return;
