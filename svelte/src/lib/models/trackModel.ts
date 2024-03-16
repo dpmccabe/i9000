@@ -593,7 +593,7 @@ export async function getAllArtistGenres(): Promise<
     query ArtistGenres {
       tracks(filter: {
         artist: { isNull: false }
-        genre: { isNull: false }
+        genre: { isNull: false, notEndsWith: "Compilation" }
       }) {
         groupedAggregates(groupBy: [ARTIST, GENRE]) {
           keys
