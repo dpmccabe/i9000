@@ -46,8 +46,8 @@
           <ColSelector />
         {:else if $activePane === 'tag-editor'}
           <TagEditor />
-        {:else if $activePane === 'title-parser'}
-          <TitleParser />
+        {:else if $activePane === 'parser'}
+          <Parser />
         {:else if $activePane === 'search-replace'}
           <SearchReplace />
         {:else if $activePane === 'playlists-editor'}
@@ -101,7 +101,7 @@ import ImportQueue from './components/trackComponents/ImportQueue.svelte';
 import Tracks from './components/trackComponents/Tracks.svelte';
 import SearchReplace from './components/trackToolsComponents/SearchReplace.svelte';
 import ThisThat from './components/trackToolsComponents/ThisThat.svelte';
-import TitleParser from './components/trackToolsComponents/TitleParser.svelte';
+import Parser from './components/trackToolsComponents/Parser.svelte';
 import {
   activePane,
   authed,

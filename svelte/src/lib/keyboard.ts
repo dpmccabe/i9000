@@ -146,7 +146,7 @@ export function handleEscape(
   } else if (activePane.get() === 'tag-editor') {
     activePane.set('tracks');
     document.getElementById('tracks')?.focus();
-  } else if (activePane.get() === 'title-parser') {
+  } else if (activePane.get() === 'parser') {
     activePane.set('tracks');
     document.getElementById('tracks')?.focus();
   } else if (activePane.get() === 'search-replace') {

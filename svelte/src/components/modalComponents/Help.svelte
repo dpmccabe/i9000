@@ -47,7 +47,7 @@
             <dd>edit selected tracks</dd>
 
             <dt>⌘ p</dt>
-            <dd>track title parser</dd>
+            <dd>track parser</dd>
 
             <dt>⌘ r</dt>
             <dd>regex replace in tags</dd>

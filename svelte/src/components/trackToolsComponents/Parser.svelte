@@ -1,17 +1,41 @@
-<Modal id="title-parser">
-  <span slot="title">Parsing {$nTracksSelected} track title(s)</span>
+<Modal id="parser">
+  <span slot="title">Parsing {$nTracksSelected} track(s)</span>
 
   <div slot="content">
-    <form on:submit|preventDefault="{() => parseTitles()}">
-      <input
-        id="parse-format"
-        bind:this="{parseFormatInput}"
-        type="text"
-        placeholder="parse format"
-        autocapitalize="off"
-        autocomplete="off"
-        spellcheck="false"
-        on:keyup="{extendTimeout}" />
+    <form on:submit|preventDefault="{() => doParse()}">
+      <table>
+        <thead>
+          <tr>
+            <th>Source tag</th>
+            <th>Parse format</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>
+              <select bind:value="{$sourceTag}">
+                <option value="title" selected>Title</option>
+                <option value="artist">Artist</option>
+                <option value="album">Album</option>
+                <option value="comments">Comments</option>
+              </select>
+            </td>
+
+            <td>
+              <input
+                id="parse-format"
+                bind:this="{parseFormatInput}"
+                type="text"
+                placeholder="parse format"
+                autocapitalize="off"
+                autocomplete="off"
+                spellcheck="false"
+                on:keyup="{extendTimeout}" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <table>
         <thead>
@@ -74,8 +98,9 @@ import {
   type Track,
   trackSettings,
   type TrackParseMod,
-  updateTracks, trimWithin
-} from "../../internal";
+  updateTracks,
+  trimWithin,
+} from '../../internal';
 import {
   derived,
   type Readable,
@@ -111,14 +136,14 @@ function extendTimeout(): void {
 }
 
 function previewParsing(): void {
-  titleParseFormat.set(parseFormatInput.value);
+  parseFormat.set(parseFormatInput.value);
 }
 
-async function parseTitles(): Promise<void> {
+async function doParse(): Promise<void> {
   if (working) return;
 
   working = true;
-  titleParseFormat.set(parseFormatInput.value);
+  parseFormat.set(parseFormatInput.value);
 
   await updateTagsFromParsed();
 
@@ -126,20 +151,23 @@ async function parseTitles(): Promise<void> {
   document.getElementById('tracks')?.focus();
 }
 
-const titleParseFormat: Writable<string> = writable('');
+type AvailableSourceTag = 'title' | 'artist' | 'album' | 'comments';
+const sourceTag: Writable<AvailableSourceTag> = writable('title');
+const parseFormat: Writable<string> = writable('');
 
 const parsedTrackValues: Readable<TrackParseMod[]> = derived(
-  [selectedTracks, titleParseFormat],
-  ([theSelectedTracks, theTitleParseFormat]: [
+  [selectedTracks, sourceTag, parseFormat],
+  ([theSelectedTracks, theSourceTag, theParseFormat]: [
     Track[],
+    AvailableSourceTag,
     string | null
   ]): TrackParseMod[] => {
-    if (theTitleParseFormat == null) return [];
+    if (theParseFormat == null) return [];
 
     const parts: string[] = [];
     let curPart = '';
 
-    for (const part of theTitleParseFormat) {
+    for (const part of theParseFormat) {
       if (part === '%') {
         if (curPart.length > 0) {
           // put previous separator on stack
@@ -162,9 +190,12 @@ const parsedTrackValues: Readable<TrackParseMod[]> = derived(
       parts.push(curPart);
     }
 
-
     return theSelectedTracks.map((t: Track): TrackParseMod => {
-      const parsedTrack: Record<string, string> = parseTrack(t, parts);
+      const parsedTrack: Record<string, string> = parseTrack(
+        t,
+        theSourceTag,
+        parts
+      );
 
       const tpm: TrackParseMod = {
         id: t.id!,
@@ -216,15 +247,19 @@ const parsedTrackValues: Readable<TrackParseMod[]> = derived(
   []
 );
 
-function parseTrack(track: Track, parts: string[]): Record<string, string> {
-  let title: string = trimWithin(track.title ?? '');
+function parseTrack(
+  track: Track,
+  theSourceTag: AvailableSourceTag,
+  parts: string[]
+): Record<string, string> {
+  let sourceValue: string = trimWithin(track[theSourceTag] ?? '');
   const partsToDo: string[] = [...parts];
   let curExtraction: string | null = null;
   let curSep: string | null = null;
   let sepPos: number | null = null;
   let mod: Record<string, string> = {};
 
-  while (title.length > 0 && partsToDo.length > 0) {
+  while (sourceValue.length > 0 && partsToDo.length > 0) {
     curExtraction = partsToDo.shift()!;
 
     if (curExtraction.startsWith('%')) {
@@ -235,36 +270,36 @@ function parseTrack(track: Track, parts: string[]): Record<string, string> {
         // this token is final part of entered parse format, so extract through
         // the end of the title
         curSep = '';
-        sepPos = title.length;
+        sepPos = sourceValue.length;
       } else {
         // where does this token end and the sep begin for this title?
-        sepPos = title.indexOf(curSep);
+        sepPos = sourceValue.indexOf(curSep);
       }
 
       if (sepPos >= 1) {
         // there is something to extract
         switch (curExtraction[1]) {
           case 't':
-            mod.title = title.substring(0, sepPos);
+            mod.title = sourceValue.substring(0, sepPos);
             break;
           case 'a':
-            mod.artist = title.substring(0, sepPos);
+            mod.artist = sourceValue.substring(0, sepPos);
             break;
           case 'l':
-            mod.album = title.substring(0, sepPos);
+            mod.album = sourceValue.substring(0, sepPos);
             break;
           case 'i':
-            mod.track = title.substring(0, sepPos);
+            mod.track = sourceValue.substring(0, sepPos);
             break;
           case 'd':
-            mod.disc = title.substring(0, sepPos);
+            mod.disc = sourceValue.substring(0, sepPos);
             break;
           case 'c':
-            mod.comments = title.substring(0, sepPos);
+            mod.comments = sourceValue.substring(0, sepPos);
             break;
         }
 
-        title = title.substring(sepPos + curSep.length);
+        sourceValue = sourceValue.substring(sepPos + curSep.length);
       } else {
         // bail, this title doesn't match the parse format
         mod = {};
@@ -273,10 +308,10 @@ function parseTrack(track: Track, parts: string[]): Record<string, string> {
     } else {
       // we're at the beginning, which starts with a separator
       curSep = curExtraction;
-      sepPos = title.indexOf(curSep);
+      sepPos = sourceValue.indexOf(curSep);
 
       if (sepPos >= 0) {
-        title = title.substring(sepPos + curSep.length);
+        sourceValue = sourceValue.substring(sepPos + curSep.length);
       } else {
         // bail, this title doesn't match the parse format
         mod = {};
@@ -347,7 +382,7 @@ async function updateTagsFromParsed(): Promise<void> {
 <style lang="scss" global>
 @use '../../assets/colors';
 
-#title-parser {
+#parser {
   width: 1200px;
 
   form {
@@ -355,7 +390,6 @@ async function updateTagsFromParsed(): Promise<void> {
 
     input#parse-format {
       width: 100%;
-      margin-bottom: 1rem;
     }
 
     table {
@@ -396,6 +430,10 @@ async function updateTagsFromParsed(): Promise<void> {
           }
         }
       }
+    }
+
+    table + table {
+      margin-top: 1.5rem;
     }
 
     button[type='submit'] {

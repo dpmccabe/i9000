@@ -39,7 +39,7 @@ export function prepParseTitles(): void {
   const sIds: Set<string> = selectedTrackIds.get();
   if (sIds.size === 0) return;
 
-  activePane.set('title-parser');
+  activePane.set('parser');
 }
 
 export function prepSearchReplace(): void {

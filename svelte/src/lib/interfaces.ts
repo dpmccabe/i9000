@@ -96,7 +96,7 @@ export type Pane =
   | 'playlists'
   | 'mobile-searcher'
   | 'tag-editor'
-  | 'title-parser'
+  | 'parser'
   | 'playlists-editor'
   | 'play-queue'
   | 'search-replace'
