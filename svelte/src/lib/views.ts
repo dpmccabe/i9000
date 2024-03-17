@@ -19,6 +19,15 @@ export async function viewReleases(): Promise<void> {
   document.getElementById('releases')?.focus();
 }
 
+export async function viewPlays(): Promise<void> {
+  document.getElementById('view')!.scrollTop = 0;
+  history.pushState('', '', '#plays');
+  view.set('plays');
+  await tick();
+  activePane.set('main');
+  document.getElementById('plays')?.focus();
+}
+
 export function prepEditTags(): void {
   const sIds: Set<string> = selectedTrackIds.get();
   if (sIds.size === 0) return;

@@ -23,6 +23,8 @@
         <div id="view" tabindex="-1">
           {#if $view === 'albums'}
             <Albums />
+          {:else if $view === 'plays'}
+            <Plays />
           {:else if $view === 'releases'}
             <Releases />
           {:else}
@@ -93,6 +95,7 @@ import Releases from './components/releaseComponents/Releases.svelte';
 import ColSelector from './components/sidebarComponents/ColSelector.svelte';
 import OrganizedPlaylists from './components/sidebarComponents/OrganizedPlaylists.svelte';
 import PlaylistSelector from './components/sidebarComponents/PlaylistSelector.svelte';
+import Plays from './components/playComponents/Plays.svelte';
 import Toolbar from './components/Toolbar.svelte';
 import ImportQueue from './components/trackComponents/ImportQueue.svelte';
 import Tracks from './components/trackComponents/Tracks.svelte';

@@ -14,6 +14,7 @@ import {
   db,
   formatDateTime,
   formatDuration,
+  type Indexable,
   type GcrDuration,
   type ImportArtistGenre,
   normString,
@@ -321,8 +322,6 @@ export const trackFields: Record<string, TabField> = {
     rangeType: 'date',
   },
 };
-
-type Indexable = Record<string, never>;
 
 export class Track {
   album?: string;

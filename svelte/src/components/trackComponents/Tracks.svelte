@@ -257,15 +257,6 @@ onDestroy((): void => {
       &.disc {
         white-space: nowrap;
       }
-
-      &.duration,
-      &.nPlays,
-      &.year,
-      &.lastPlayed,
-      &.createdAt,
-      &.updatedAt {
-        font-variant: tabular-nums;
-      }
     }
 
     &.n-results-digits-1 {

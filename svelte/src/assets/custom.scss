@@ -107,6 +107,7 @@ $genre-hues: (
 }
 
 table#tracks tr,
+table#plays tr,
 table#albums tr {
   @each $genre, $hue in $genre-hues {
     &.#{$genre} {

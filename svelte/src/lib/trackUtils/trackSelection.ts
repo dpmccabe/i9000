@@ -2,7 +2,6 @@ import { tick } from 'svelte';
 import {
   allPlaylistName,
   currentPlaylist,
-  getNextTrackResultsBatch,
   keyboard,
   multiSelecting,
   nTracksSelected,

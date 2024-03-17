@@ -31,7 +31,13 @@ export interface TabField {
   sortReverse?: boolean;
   formatter?: (x: any) => string;
   rangeType?: TabRangeType;
+  fake?: boolean;
 }
+
+export type TabFieldOverride = Omit<
+  TabField,
+  'dbCols' | 'numeric' | 'isEnum'
+>;
 
 export interface TabSort {
   col: string;

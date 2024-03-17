@@ -93,7 +93,7 @@ onMount((): void => {
     document.querySelector(
       '#tab-filters-grid input, #tab-filters-grid select'
     ) as HTMLElement
-  ).focus();
+  )?.focus();
 });
 
 async function getAgg(

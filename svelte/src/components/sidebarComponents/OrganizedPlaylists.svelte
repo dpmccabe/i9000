@@ -1,17 +1,30 @@
 <!--svelte-ignore a11y-click-events-have-key-events-->
 <div class="org-playlists">
   <ul class="playlists">
-    <li class="top-level" class:active="{$view === 'releases'}">
-      <button on:click|preventDefault="{() => viewReleases()}">
-        <Fa icon="{faRss}" fw />
-        Releases
+    <li class="top-level">
+      <button
+        on:click|preventDefault="{() => viewAlbums()}"
+        class:active="{$view === 'albums'}">
+        <Fa icon="{faCompactDisc}" fw />
+        Albums
       </button>
     </li>
 
-    <li class="top-level" class:active="{$view === 'albums'}">
-      <button on:click|preventDefault="{() => viewAlbums()}">
-        <Fa icon="{faCompactDisc}" fw />
-        Albums
+    <li class="top-level">
+      <button
+        on:click|preventDefault="{() => viewPlays()}"
+        class:active="{$view === 'plays'}">
+        <Fa icon="{faPlay}" fw />
+        Plays
+      </button>
+    </li>
+
+    <li class="top-level">
+      <button
+        on:click|preventDefault="{() => viewReleases()}"
+        class:active="{$view === 'releases'}">
+        <Fa icon="{faRss}" fw />
+        Releases
       </button>
     </li>
 
@@ -47,7 +60,11 @@
 </div>
 
 <script lang="ts">
-import { faCompactDisc, faRss } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCompactDisc,
+  faRss,
+  faPlay,
+} from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { slide } from 'svelte/transition';
 import {
@@ -55,6 +72,7 @@ import {
   type PlaylistFolder,
   view,
   viewAlbums,
+  viewPlays,
   viewReleases,
 } from '../../internal';
 import SidebarPlaylist from './SidebarPlaylist.svelte';

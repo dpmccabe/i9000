@@ -104,7 +104,7 @@ export type Pane =
   | 'tracks'
   | 'tab-filters';
 
-export type TrackView = 'tracks' | 'albums' | 'releases';
+export type TrackView = 'tracks' | 'albums' | 'plays' | 'releases';
 
 export type MessageType = 'error' | 'info' | 'success';
 
@@ -219,3 +219,5 @@ export interface GroupedAggregate {
   keys: string[];
   distinctCount: Record<string, string>;
 }
+
+export type Indexable = Record<string, never>;

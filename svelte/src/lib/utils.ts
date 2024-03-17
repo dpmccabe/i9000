@@ -2,6 +2,8 @@ import { toast } from '@zerodevx/svelte-toast';
 import { DateTime } from 'luxon';
 import {
   type MessageType,
+  type TabField,
+  type TabFieldOverride,
   type Track,
   type TrackGroup,
   unaccent,
@@ -15,6 +17,7 @@ export function camelToScreamingSnakeCase(str: string): string {
 
 export function camelToKebabCase(str: string): string {
   return str
+    .replace(/\./g, '-')
     .replace(/[A-Z]/g, (letter: string): `-${string}` => `-${letter}`)
     .toLowerCase();
 }
@@ -169,7 +172,7 @@ export function discAndTrack(track: Track): string {
     s = `${track.trackI ?? ''}`;
 
     if (track.trackN != null) {
-      s += ` <span clas="slash">/</span> ${track.trackN}`;
+      s += ` <span class="slash">/</span> ${track.trackN}`;
     }
 
     return `(${s})`;
@@ -177,7 +180,7 @@ export function discAndTrack(track: Track): string {
     s = `disc ${track.discI}`;
 
     if (track.discN != null) {
-      s += ` <span clas="slash">/</span> ${track.discN}`;
+      s += ` <span class="slash">/</span> ${track.discN}`;
     }
 
     return `(${s})`;
@@ -186,11 +189,11 @@ export function discAndTrack(track: Track): string {
     let sTrack = `${track.trackI}`;
 
     if (track.discN != null) {
-      sDisc += ` <span clas="slash">/</span> ${track.discN}`;
+      sDisc += ` <span class="slash">/</span> ${track.discN}`;
     }
 
     if (track.trackN != null) {
-      sTrack += ` <span clas="slash">/</span> ${track.trackN}`;
+      sTrack += ` <span class="slash">/</span> ${track.trackN}`;
     }
 
     return `(${[sDisc, sTrack].join(', ')})`;
@@ -308,10 +311,37 @@ export function objHas(obj: object, prop: PropertyKey): boolean {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-export function trimWithin(x: string) {
+export function trimWithin(x: string): string {
   return x.replace(/[\s\t]+/g, ' ').trim();
 }
 
 export function normString(x: string): string {
   return unaccent(trimWithin(x.normalize('NFC').toLowerCase()));
+}
+
+export function relateTabFields(
+  fields: Record<string, TabField>,
+  prefix: string,
+  overrides: Record<string, TabFieldOverride>
+): Record<string, TabField> {
+  function wrapper(x: string): string {
+    return `${prefix} { ${x} }`;
+  }
+
+  const newFields: Record<string, TabField> = {};
+
+  for (const k of Object.keys(fields)) {
+    const rk: string = [prefix, k].join('.');
+    newFields[rk] = { ...fields[k] };
+
+    newFields[rk].dbCols = newFields[rk].dbCols.map(wrapper);
+    newFields[rk].sortCols = newFields[rk].sortCols?.map(wrapper);
+
+    for (const ko of Object.keys(overrides[k])) {
+      // @ts-ignore
+      newFields[rk][ko] = overrides[k][ko];
+    }
+  }
+
+  return newFields;
 }

@@ -94,6 +94,8 @@ export async function postAuthSetup(): Promise<void> {
     view.set('releases');
   } else if (window.location.hash.substring(1) === 'albums') {
     view.set('albums');
+  } else if (window.location.hash.substring(1) === 'plays') {
+    view.set('plays');
   } else {
     const savedTrackSettingsItem: string | null =
       localStorage.getItem('track-settings');

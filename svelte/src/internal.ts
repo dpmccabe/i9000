@@ -16,6 +16,7 @@ export * from './lib/models/playModel';
 export * from './lib/stores/appStores';
 export * from './lib/stores/albumStores';
 export * from './lib/stores/trackStores';
+export * from './lib/stores/playStores';
 export * from './lib/stores/playlistStores';
 export * from './lib/stores/playerStores';
 export * from './lib/stores/releaseStores';
@@ -34,6 +35,7 @@ export * from './lib/playlistUtils/robot';
 export * from './lib/playlistUtils/interleave';
 
 export * from './lib/albumUtils';
+export * from './lib/playUtils';
 export * from './lib/releaseUtils';
 export * from './lib/trackUtils/trackUtils';
 export * from './lib/auth';
