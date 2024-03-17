@@ -176,13 +176,6 @@
 
                 <TagInput
                   type="{TagField.StaticField}"
-                  inputId="genreCat"
-                  labelText="genre category"
-                  tv="{tagValues.genreCat}"
-                  bind:valueToPaste="{valueToPaste}" />
-
-                <TagInput
-                  type="{TagField.StaticField}"
                   inputId="bitrate"
                   labelText="bitrate"
                   tv="{tagValues.bitrate}"

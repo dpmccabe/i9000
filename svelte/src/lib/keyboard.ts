@@ -174,6 +174,7 @@ export async function handleTrackSelection(
   ev: KeyboardEvent
 ): Promise<boolean> {
   if (ev.key === 'l' && ev.metaKey) {
+    ev.preventDefault();
     void selectPlayingTrack();
   } else if (
     document.activeElement?.tagName === 'SELECT' ||
