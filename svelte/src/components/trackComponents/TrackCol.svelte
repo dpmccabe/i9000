@@ -1,9 +1,9 @@
 {#if field === 'artist'}
   {#if track.artist === track.albumArtist}
-    {track.artist}
-  {:else if track.artist}
-    <span class="less-imp">{track.albumArtist}:</span>
-    {track.artist}
+    {track.artist ?? '(missing)'}
+  {:else}
+    <span class="less-imp">{track.albumArtist ?? '(missing)'}:</span>
+    {track.artist ?? '(missing)'}
   {/if}
 {:else if field === 'track'}
   {#if track.trackI}
