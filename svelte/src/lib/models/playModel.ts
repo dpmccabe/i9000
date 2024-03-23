@@ -260,16 +260,16 @@ export const playFields: Record<string, TabField> = {
 };
 
 export class Play {
-  id: number;
-  dt: DateTime | number;
-  track: Track;
-  trackId: string;
+  id?: number;
+  dt?: DateTime | number;
+  track?: Track;
+  trackId?: string;
 
   constructor(rec: Record<string, any>) {
-    this.id = rec.id;
-    this.trackId = rec.trackId;
-    this.dt = DateTime.fromMillis(Number(BigInt(rec.dt)));
-    this.track = new Track(rec.track);
+    if (rec.id != null) this.id = rec.id;
+    if (rec.trackId != null) this.trackId = rec.trackId;
+    if (rec.dt != null) this.dt = DateTime.fromMillis(Number(BigInt(rec.dt)));
+    if (rec.track != null) this.track = new Track(rec.track);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

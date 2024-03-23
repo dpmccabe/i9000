@@ -511,7 +511,9 @@ async function markTrackAsPlayed(track: Track): Promise<void> {
   track.lastPlayed = DateTime.utc();
 
   try {
-    await insertPlay(new Play(track.id!, track.lastPlayed.toMillis()));
+    const play: Play = new Play({ trackId: track.id! });
+    play.dt = track.lastPlayed.toMillis();
+    await insertPlay(play);
   } catch (e: unknown) {
     if (e instanceof Error) {
       logMessage(`Error marking track as played: ${e.message}`, 'error');
