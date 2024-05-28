@@ -6,4 +6,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 RUN apt-get update
 RUN apt-get install -y libchromaprint-tools ffmpeg
 
-RUN pip install "poetry==1.2.0"
+RUN pip install "poetry==1.8.3"
