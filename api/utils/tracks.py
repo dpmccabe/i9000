@@ -131,16 +131,21 @@ def extract_id3_tags(temp_f: str) -> dict[str, str]:
     """
 
     logger.info("Reading ID3 tags...")
-    tags = EasyID3(temp_f)
     clean_tags = {}
 
-    for tag, val_list in tags.items():
-        if tag in relevant_tags:
-            # get value from (maybe) single-item list
-            val = list(itertools.chain(*[val_list]))[0]
+    try:
+        tags = EasyID3(temp_f)
 
-            if len(val) > 0:
-                clean_tags[tag] = val.replace("\x92", "'")
+        for tag, val_list in tags.items():
+            if tag in relevant_tags:
+                # get value from (maybe) single-item list
+                val = list(itertools.chain(*[val_list]))[0]
+
+                if len(val) > 0:
+                    clean_tags[tag] = val.replace("\x92", "'")
+
+    except Exception as e:
+        logger.error(e)
 
     return clean_tags
 
