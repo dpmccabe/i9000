@@ -14,6 +14,14 @@
         on:click|preventDefault="{() => cleanImportQueue()}"
         ><Fa icon="{faBroom}" fw size="lg" /></a>
 
+      <div id="state-counts">
+        {#each ['todo', 'uploading', 'success', 'retrying', 'failed'] as k}
+          {#if $stateCounts[k] > 0}
+            <span class="{k}">{$stateCounts[k]} {k}</span>
+          {/if}
+        {/each}
+      </div>
+
       <table>
         <tbody>
           {#each [...$importingMp3s] as [filename, impMp3]}
@@ -32,8 +40,8 @@
                 {#if impMp3.state === 'uploading'}
                   Uploading&hellip;
                 {:else if impMp3.state === 'success'}
-                  {impMp3.track.trackI ?? '0'}.
-                  {impMp3.track.title}
+                  {impMp3.track?.trackI ?? '0'}.
+                  {impMp3.track?.title}
                 {:else if ['retrying', 'failed'].includes(impMp3.state)}
                   {#if impMp3.failureMsg != null}{impMp3.failureMsg}{/if}
                 {/if}
@@ -58,6 +66,7 @@ import {
   importingMp3s,
   importTracks,
   removeFromImportQueue,
+  stateCounts,
 } from '../../internal';
 import Modal from '../modalComponents/Modal.svelte';
 
@@ -94,12 +103,12 @@ async function dropTracks(ev: DragEvent): Promise<void> {
 }
 
 async function getFilesDataTransferItems(ev: DragEvent) {
-  const dataTransferItemKeys: string[] = Object.keys(ev.dataTransfer.items);
+  const dataTransferItemKeys: string[] = Object.keys(ev.dataTransfer!.items);
   let fileEntries: FileSystemEntry[] = [];
 
   await Promise.all(
     dataTransferItemKeys.map(async (k: string): Promise<void> => {
-      const item: DataTransferItem = ev.dataTransfer.items[k];
+      const item: DataTransferItem = ev.dataTransfer!.items[k];
       const entry: FileSystemEntry = item.webkitGetAsEntry();
       if (!entry) return;
 
@@ -158,6 +167,48 @@ function megabytes(x: number): string {
 
 <style lang="scss" global>
 @use '../../assets/colors';
+
+#state-counts {
+  display: flex;
+  flex-flow: row;
+
+  & > span {
+    font-size: 13px;
+    background-color: colors.$darkest-gray;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 10px;
+    border-left: colors.$dark-gray solid 1px;
+
+    &:first-child {
+      border-radius: 5px 0 0 5px;
+    }
+
+    &:last-child {
+      border-radius: 0 5px 5px 0;
+    }
+
+    &.todo {
+      color: colors.$dim-text;
+    }
+
+    &.uploading {
+      color: white;
+    }
+
+    &.success {
+      color: #ccebc5;
+    }
+
+    &.retrying {
+      color: desaturate(#fbb4ae, 50);
+    }
+
+    &.failed {
+      color: #fbb4ae;
+    }
+  }
+}
 
 #import-queue {
   width: 1000px;

@@ -18,10 +18,17 @@ import { writable, type Writable } from './tansuStore';
 
 type Presign = { fields: any; url: string };
 
-const maxConcurrentImports = 1;
+const maxConcurrentImports = 3;
 export const importingMp3s: Writable<Map<string, ImportingMp3>> = writable(
   new Map<string, ImportingMp3>()
 );
+export const stateCounts: Writable<Record<ImportState, number>> = writable({
+  todo: 0,
+  uploading: 0,
+  success: 0,
+  retrying: 0,
+  failed: 0,
+});
 let importingFn: number | null = null;
 
 export function importTracks(
@@ -56,30 +63,32 @@ export function importTracks(
 function processImportQueue(
   artistGenres: Map<string, ImportArtistGenre>
 ): void {
-  const stateCounts: Record<ImportState, number> = {
-    todo: 0,
-    uploading: 0,
-    success: 0,
-    retrying: 0,
-    failed: 0,
-  };
-
   let nextImportKey: null | string = null;
 
   for (const [filename, impMp3] of importingMp3s.get()!) {
-    stateCounts[impMp3.state]++;
+    stateCounts.update(
+      (sc: Record<ImportState, number>): Record<ImportState, number> => {
+        sc[impMp3.state]++;
+        return sc;
+      }
+    );
 
     if (nextImportKey == null && ['todo', 'retrying'].includes(impMp3.state)) {
       nextImportKey = filename;
     }
   }
 
-  if (stateCounts.todo + stateCounts.uploading + stateCounts.retrying === 0) {
+  if (
+    stateCounts.get().todo +
+      stateCounts.get().uploading +
+      stateCounts.get().retrying ===
+    0
+  ) {
     logMessage('Done importing MP3s files', 'success');
     clearImportingFn();
   } else if (
     nextImportKey != null &&
-    stateCounts.uploading < maxConcurrentImports
+    stateCounts.get().uploading < maxConcurrentImports
   ) {
     importingMp3s.update(
       (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
