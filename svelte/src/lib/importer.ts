@@ -245,13 +245,20 @@ function applyId3Tags(
   let discParts: string[];
 
   if ('artist' in tags || 'albumartist' in tags) {
-    track.artist = trimWithin((tags.artist ?? tags.albumartist) as string);
-    track.albumArtist = trimWithin((tags.albumartist ?? tags.artist) as string);
+    track.artist = trimWithin(
+      (tags.artist ?? tags.albumartist) as string
+    ).normalize('NFC');
+    track.albumArtist = trimWithin(
+      (tags.albumartist ?? tags.artist) as string
+    ).normalize('NFC');
   }
 
-  if ('album' in tags) track.album = trimWithin(tags.album as string);
-  if ('composer' in tags) track.composer = trimWithin(tags.composer as string);
-  if ('title' in tags) track.title = trimWithin(tags.title as string);
+  if ('album' in tags)
+    track.album = trimWithin(tags.album as string).normalize('NFC');
+  if ('composer' in tags)
+    track.composer = trimWithin(tags.composer as string).normalize('NFC');
+  if ('title' in tags)
+    track.title = trimWithin(tags.title as string).normalize('NFC');
   if ('compilation' in tags) track.compilation = tags.compilation === '1';
   if ('date' in tags) track.year = parseInt(tags.date as string);
 
@@ -285,7 +292,7 @@ function applyId3Tags(
       track.artist = existingArtistGenre.artist;
       track.genre = existingArtistGenre.genre;
     } else if ('genre' in tags) {
-      track.genre = trimWithin(tags.genre as string);
+      track.genre = trimWithin(tags.genre as string).normalize('NFC');
 
       if (
         [
