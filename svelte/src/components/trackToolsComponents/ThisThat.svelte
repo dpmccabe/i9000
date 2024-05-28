@@ -51,7 +51,7 @@
       </table>
 
       <button type="submit" disabled="{working}" class:working="{working}"
-        >Update
+        ><span>Update</span>
         <Fa icon="{faSpinner}" size="sm" spin /></button>
     </form>
   </div>

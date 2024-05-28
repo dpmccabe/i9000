@@ -25,7 +25,7 @@
           class="cancel">Cancel</button>
 
         <button type="submit" disabled="{working}" class:working="{working}">
-          Yes
+          <span>Yes</span>
           <Fa icon="{faSpinner}" size="sm" spin /></button>
       </form>
     </div>

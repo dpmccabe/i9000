@@ -19,7 +19,7 @@
         placeholder="password" /></label>
 
     <button type="submit" disabled="{working}" class:working="{working}"
-      >Log in
+      ><span>Log in</span>
       <Fa icon="{faSpinner}" size="sm" spin /></button>
   </form>
 </div>

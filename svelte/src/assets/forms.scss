@@ -119,7 +119,9 @@ button[type='submit'] {
   font-family: ui-sans-serif, 'SF Pro', 'San Francisco', 'Helvetica Neue',
     sans-serif;
   border-radius: 5px;
-  display: block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
   @media (hover: hover) {
     &:hover {
@@ -145,10 +147,11 @@ button[type='submit'] {
 
   & > svg.spin {
     display: none;
+    margin-left: 0.5rem;
   }
 
   &.working > svg.spin {
-    display: inline-block;
+    display: block;
   }
 }
 
