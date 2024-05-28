@@ -171,6 +171,7 @@ function megabytes(x: number): string {
 #state-counts {
   display: flex;
   flex-flow: row;
+  margin-bottom: 10px;
 
   & > span {
     font-size: 13px;
@@ -186,6 +187,10 @@ function megabytes(x: number): string {
 
     &:last-child {
       border-radius: 0 5px 5px 0;
+    }
+
+    &:first-child:last-child {
+      border-radius: 5px;
     }
 
     &.todo {

@@ -14,21 +14,38 @@ import {
   trackExists,
   trimWithin,
 } from '../internal';
-import { writable, type Writable } from './tansuStore';
+import { derived, type Readable, writable, type Writable } from './tansuStore';
 
 type Presign = { fields: any; url: string };
 
 const maxConcurrentImports = 3;
-export const importingMp3s: Writable<Map<string, ImportingMp3>> = writable(
-  new Map<string, ImportingMp3>()
-);
-export const stateCounts: Writable<Record<ImportState, number>> = writable({
+const startingStateCounts: Record<ImportState, number> = {
   todo: 0,
   uploading: 0,
   success: 0,
   retrying: 0,
   failed: 0,
-});
+};
+
+export const importingMp3s: Writable<Map<string, ImportingMp3>> = writable(
+  new Map<string, ImportingMp3>()
+);
+export const stateCounts: Readable<Record<ImportState, number>> = derived(
+  importingMp3s,
+  (
+    theImportingMp3s: Map<string, ImportingMp3>
+  ): Record<ImportState, number> => {
+    console.log('theImportingMp3s', theImportingMp3s);
+    const sc: Record<ImportState, number> = { ...startingStateCounts };
+
+    for (const impMp3 of theImportingMp3s.values()) {
+      sc[impMp3.state]++;
+    }
+
+    return sc;
+  },
+  startingStateCounts
+);
 let importingFn: number | null = null;
 
 export function importTracks(
@@ -66,13 +83,6 @@ function processImportQueue(
   let nextImportKey: null | string = null;
 
   for (const [filename, impMp3] of importingMp3s.get()!) {
-    stateCounts.update(
-      (sc: Record<ImportState, number>): Record<ImportState, number> => {
-        sc[impMp3.state]++;
-        return sc;
-      }
-    );
-
     if (nextImportKey == null && ['todo', 'retrying'].includes(impMp3.state)) {
       nextImportKey = filename;
     }
