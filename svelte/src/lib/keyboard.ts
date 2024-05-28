@@ -33,11 +33,13 @@ import {
   scrubRelative,
   selectAlbumTracks,
   selectAllTracks,
+  selectedTrackIds,
   selectFirst,
   selectLast,
   selectNextTrack,
   selectPlayingTrack,
   selectPreviousTrack,
+  startPlayingInPlaylist,
   stopPlayback,
   toggleSelectionDown,
   toggleSelectionUp,
@@ -46,8 +48,8 @@ import {
   unactionAll,
   undoPlaylistTracksUpdate,
   viewAlbums,
-  viewReleases
-} from "../internal";
+  viewReleases,
+} from '../internal';
 
 export function keyUp(ev: KeyboardEvent): void {
   // some keyboard events don't generate presses, so handle them with up
@@ -293,10 +295,7 @@ export async function handlePlaylistSelection(
 }
 
 export async function handlePlayback(ev: KeyboardEvent): Promise<boolean> {
-  if (ev.metaKey && ev.key === 'Enter') {
-    ev.preventDefault();
-    await playSelectedTrack();
-  } else if (ev.metaKey && ev.key === 's') {
+  if (ev.metaKey && ev.key === 's') {
     ev.preventDefault();
     stopPlayback();
   } else if (
@@ -314,11 +313,19 @@ export async function handlePlayback(ev: KeyboardEvent): Promise<boolean> {
   } else if (
     ev.key === ' ' &&
     document.activeElement?.tagName !== 'INPUT' &&
-    activePane.get() !== 'playlists' &&
-    playingTrack.get() != null
+    activePane.get() !== 'playlists'
   ) {
     ev.preventDefault();
-    await playOrPause();
+
+    if (playingTrack.get() == null) {
+      if (selectedTrackIds.get().size > 0) {
+        await playSelectedTrack();
+      } else {
+        await startPlayingInPlaylist();
+      }
+    } else {
+      await playOrPause();
+    }
   } else {
     return false;
   }
