@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY --link poetry.lock .
 COPY --link pyproject.toml .
-RUN poetry install --without dev
+RUN poetry install --without dev --no-root
 
 COPY --link utils ./utils
 COPY --link main.py .
