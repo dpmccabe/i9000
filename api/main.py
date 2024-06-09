@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import base64
-import faulthandler
-import logging
 import os
 import time
 from tempfile import TemporaryDirectory
@@ -20,48 +18,8 @@ from utils.api import ApiConfig, get_api_key
 from utils.cf_signed_url import make_signed_wildcard_url
 
 
-if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
-    """
-    When running with gunicorn the log handlers get suppressed instead of passed along
-    to the container manager. This forces the gunicorn handlers to be used throughout
-    the project.
-
-    (from https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker/issues/19)
-    """
-
-    gunicorn_logger = logging.getLogger("gunicorn")
-    log_level = gunicorn_logger.level
-
-    root_logger = logging.getLogger()
-    gunicorn_error_logger = logging.getLogger("gunicorn.error")
-    uvicorn_access_logger = logging.getLogger("uvicorn.access")
-
-    # use gunicorn error handlers for root, uvicorn, and fastapi loggers
-    root_logger.handlers = gunicorn_error_logger.handlers
-    uvicorn_access_logger.handlers = gunicorn_error_logger.handlers
-    logger.handlers = gunicorn_error_logger.handlers
-
-    # pass on logging levels for root, uvicorn, and fastapi loggers
-    root_logger.setLevel(log_level)
-    uvicorn_access_logger.setLevel(log_level)
-    logger.setLevel(log_level)
-
-
 app = FastAPI()
 config = ApiConfig(app)
-faulthandler.enable()
-
-
-if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
-    gunicorn_error_logger = logging.getLogger("gunicorn.error")
-    gunicorn_logger = logging.getLogger("gunicorn")
-
-    logger.setLevel(gunicorn_logger.level)
-    logger.handlers = gunicorn_error_logger.handlers
-    logging.getLogger().setLevel(gunicorn_logger.level)
-
-    uvicorn_logger = logging.getLogger("uvicorn.access")
-    uvicorn_logger.handlers = gunicorn_error_logger.handlers
 
 
 @app.get("/")
