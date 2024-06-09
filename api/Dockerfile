@@ -10,5 +10,4 @@ RUN poetry install --without dev --no-root
 COPY --link utils ./utils
 COPY --link main.py .
 
-EXPOSE 10000
-CMD ["poetry", "run", "gunicorn", "-b", "0.0.0.0:10000", "-t", "20", "-k", "uvicorn.workers.UvicornWorker", "-w", "1", "main:app"]
+CMD ["poetry", "run", "gunicorn", "-t", "5", "-k", "uvicorn.workers.UvicornWorker", "-w", "1", "main:app"]
