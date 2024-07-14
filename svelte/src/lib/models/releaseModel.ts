@@ -8,7 +8,7 @@
   @typescript-eslint/no-unsafe-argument
 */
 import { DateTime } from 'luxon';
-import { db, formatDate, type TabField, TabSettings } from '../../internal';
+import { db, formatDate, Play, type TabField, TabSettings } from "../../internal";
 
 export type Ackstate = 'new' | 'todo' | 'acked';
 
@@ -153,6 +153,20 @@ export class ReleaseSettings extends TabSettings<Release> {
     const count: number = resp[this.queryName].totalCount;
     return count === 1 ? `${count} release` : `${count} releases`;
   }
+}
+
+export async function getNNewReleases(): Promise<number> {
+  const q = `
+    query nNewReleases {
+      releases(filter: {ackstate: {equalTo: NEW}}) {
+        totalCount
+      }
+    }
+  `;
+
+  const res: any = await db(q, {});
+
+  return res.releases.totalCount;
 }
 
 export async function ackRelease(

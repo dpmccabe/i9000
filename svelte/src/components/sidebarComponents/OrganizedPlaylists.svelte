@@ -25,6 +25,9 @@
         class:active="{$view === 'releases'}">
         <Fa icon="{faRss}" fw />
         Releases
+        {#if $nNewReleases != null}
+          <span>{$nNewReleases}</span>
+        {/if}
       </button>
     </li>
 
@@ -66,18 +69,23 @@ import {
   faPlay,
 } from '@fortawesome/free-solid-svg-icons';
 import Fa from 'svelte-fa/src/fa.svelte';
+import { onDestroy, onMount } from 'svelte';
 import { slide } from 'svelte/transition';
 import {
+  DB,
+  getNNewReleases,
+  nNewReleases,
   organizedPlaylists,
   type PlaylistFolder,
   view,
   viewAlbums,
   viewPlays,
-  viewReleases,
-} from '../../internal';
+  viewReleases
+} from "../../internal";
 import SidebarPlaylist from './SidebarPlaylist.svelte';
 
 let playlistFolderExpanded: Record<number, boolean>;
+let nNewReleasesUpdater: number | null = null;
 
 $: playlistFolderExpanded = Object.fromEntries(
   $organizedPlaylists.playlistFolders.map(
@@ -86,6 +94,19 @@ $: playlistFolderExpanded = Object.fromEntries(
     }
   )
 );
+
+onMount(async (): Promise<void> => {
+  window.setInterval(setNNewReleases, 1000);
+  nNewReleasesUpdater ||= window.setInterval(setNNewReleases, 60 * 60 * 1000);
+});
+
+onDestroy((): void => {
+  if (nNewReleasesUpdater != null) window.clearInterval(nNewReleasesUpdater);
+});
+
+async function setNNewReleases(): Promise<void> {
+  if (DB.online) nNewReleases.set(await getNNewReleases())
+}
 </script>
 
 <style lang="scss" global>
@@ -161,9 +182,17 @@ ul.playlists {
           border-right: solid transparent 0; // redraw hack
         }
       }
-    }
 
-    button {
+      & > span {
+        margin-left: 10px;
+        font-size: 11px;
+        display: inline-block;
+        vertical-align: middle;
+        padding: 2px 5px;
+        border-radius: 5px;
+        background-color: #999;
+        color: colors.$dark-gray;
+      }
     }
   }
 }

@@ -11,3 +11,5 @@ export const releaseSettings: Writable<ReleaseSettings | undefined> = writable<
 
 export const releaseResults: Writable<TabResults<Release> | undefined> =
   writable<TabResults<Release> | undefined>(undefined);
+
+export const nNewReleases: Writable<number | undefined> = writable(undefined);
