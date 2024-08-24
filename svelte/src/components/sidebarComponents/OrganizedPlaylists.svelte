@@ -96,7 +96,7 @@ $: playlistFolderExpanded = Object.fromEntries(
 );
 
 onMount(async (): Promise<void> => {
-  window.setInterval(setNNewReleases, 1000);
+  await setNNewReleases();
   nNewReleasesUpdater ||= window.setInterval(setNNewReleases, 60 * 60 * 1000);
 });
 
