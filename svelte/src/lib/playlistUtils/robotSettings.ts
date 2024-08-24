@@ -9,4 +9,5 @@ export const robotSettings: RobotSettings = {
   ratingMults: { '1': 1, '2': 3, '3': 5 },
   ungroupedTrackDurationLimit: 10 * 60 * 1000, // 10 minutes
   decayingCutsExp: 3,
+  excessHours: 8,
 };

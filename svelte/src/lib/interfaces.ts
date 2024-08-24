@@ -170,6 +170,13 @@ export interface RobotSettings {
   ratingMults: Record<string, number>;
   ungroupedTrackDurationLimit: number;
   decayingCutsExp: number;
+  excessHours: number;
+}
+
+export interface RobotIds {
+  ids: string[];
+  genreIds: Record<string, string[]>;
+  ungroupedIds: string[];
 }
 
 export interface ImportArtistGenre {

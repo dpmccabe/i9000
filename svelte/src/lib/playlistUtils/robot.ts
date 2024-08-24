@@ -5,9 +5,11 @@ import {
   getStarredTracks,
   groupTracks,
   interleaveGroupedTracks,
+  narrow,
   objHas,
   type Playlist,
   playlists,
+  type RobotIds,
   robotSettings,
   type Track,
   type TrackGroup,
@@ -153,7 +155,7 @@ function selectGcrTracks(idur: GcrDuration, gcrTracks: Track[]): TrackGroup[] {
 
     const cuts: number[] = Array.from(
       new Array(nBins - 1),
-      (x: number, i: number): number =>
+      (_: number, i: number): number =>
         ((i + 1) / nBins) ** robotSettings.decayingCutsExp *
         (trackGroups.length - 1)
     );
@@ -240,90 +242,112 @@ async function collectRobotPool(nHours: number): Promise<TrackGroup[]> {
 }
 
 export async function refreshRobotPlaylists(nHours: number): Promise<Playlist> {
-  const robotTrackGroups: TrackGroup[] = await collectRobotPool(nHours);
+  const nHoursWithExcess: number = robotSettings.excessHours + nHours;
 
-  let robotIds: string[] = [];
-  const robotGenreIds: Record<string, string[]> = Object.fromEntries(
+  const robotTrackGroups: TrackGroup[] = await collectRobotPool(
+    nHoursWithExcess
+  );
+
+  const emptyGenreIds: Record<string, string[]> = Object.fromEntries(
     Object.keys(robotSettings.genreCats).map(
       (gc: string): [string, string[]] => [gc, []]
     )
   );
-  const robotUngroupedIds: string[] = [];
+
+  const robotIds: Record<string, RobotIds> = {
+    M: {
+      ids: [],
+      genreIds: { ...emptyGenreIds },
+      ungroupedIds: [],
+    },
+    R: {
+      ids: [],
+      genreIds: { ...emptyGenreIds },
+      ungroupedIds: [],
+    },
+  };
+
   let accDuration = 0;
+  let filling = 'M';
 
   // collect track IDs for robot playlists
   for (const tg of robotTrackGroups) {
     const trackIds: string[] = tg.tracks.map((t: Track): string => t.id!);
 
-    robotIds = robotIds.concat(trackIds);
-    robotGenreIds[tg.genreCat] = robotGenreIds[tg.genreCat].concat(trackIds);
+    robotIds[filling]['ids'] = robotIds[filling]['ids'].concat(trackIds);
+    robotIds[filling]['genreIds'][tg.genreCat] =
+      robotIds[filling]['genreIds'][tg.genreCat].concat(trackIds);
 
     if (
       robotSettings.genreCats[tg.genreCat].includeInUngrouped &&
       trackIds.length === 1 &&
       tg.totalDuration <= robotSettings.ungroupedTrackDurationLimit
     ) {
-      robotUngroupedIds.push(trackIds[0]);
+      robotIds[filling]['ungroupedIds'].push(trackIds[0]);
     }
 
-    if (nHours <= 24) {
-      // check if we have enough tracks for requested nHours
-      accDuration += tg.totalDuration;
+    // check if we have enough tracks yet
+    accDuration += tg.totalDuration;
 
-      if (accDuration >= nHours * 60 * 60 * 1000) {
-        break;
+    if (accDuration >= nHoursWithExcess * 60 * 60 * 1000) {
+      break;
+    } else if (accDuration >= robotSettings.excessHours * 60 * 60 * 1000) {
+      filling = 'R';
+    }
+  }
+
+  let robotPlaylists: Record<string, Playlist> = {};
+  let robotGenrePlaylistNames: string[];
+  let robotPlaylistNames: string[];
+  const playlistToShow: Record<string, Playlist> = {};
+
+  for (const f of ['M', 'R']) {
+    robotGenrePlaylistNames = genreCatNames.map(
+      (gc: string): string => `${f} (${gc})`
+    );
+    robotPlaylistNames = [f, `${f} (ungrouped)`].concat(
+      robotGenrePlaylistNames
+    );
+
+    // check if playlists already exist
+    playlists.get().forEach((p: Playlist): void => {
+      if (robotPlaylistNames.includes(p.name)) {
+        robotPlaylists[p.name] = p;
+      }
+    });
+
+    // set playlists' tracks
+    if (objHas(robotPlaylists, f)) {
+      playlistToShow[f] = robotPlaylists[f];
+      await updatePlaylistTracks(robotPlaylists[f], robotIds[f]['ids'], false);
+    } else {
+      playlistToShow[f] = await createPlaylist(f, robotIds[f]['ids']);
+    }
+
+    for (const gc of genreCatNames) {
+      const rPlaylistName = `${f} (${gc})`;
+
+      if (objHas(robotPlaylists, rPlaylistName)) {
+        await updatePlaylistTracks(
+          robotPlaylists[rPlaylistName],
+          robotIds[f]['genreIds'][gc],
+          false
+        );
+      } else {
+        await createPlaylist(rPlaylistName, robotIds[f]['genreIds'][gc]);
       }
     }
-  }
 
-  const robotPlaylists: Record<string, Playlist> = {};
-  const robotGenrePlaylistNames: string[] = genreCatNames.map(
-    (gc: string): string => `R (${gc})`
-  );
-  const robotPlaylistNames: string[] = ['R', 'R (ungrouped)'].concat(
-    robotGenrePlaylistNames
-  );
-
-  // check if playlists already exist
-  playlists.get().forEach((p: Playlist): void => {
-    if (robotPlaylistNames.includes(p.name)) {
-      robotPlaylists[p.name] = p;
-    }
-  });
-
-  let robotPlaylist: Playlist;
-
-  // set playlists' tracks
-  if (objHas(robotPlaylists, 'R')) {
-    robotPlaylist = robotPlaylists.R;
-    await updatePlaylistTracks(robotPlaylists.R, robotIds, false);
-  } else {
-    robotPlaylist = await createPlaylist('R', robotIds);
-  }
-
-  for (const gc of genreCatNames) {
-    const rPlaylistName = `R (${gc})`;
-
-    if (objHas(robotPlaylists, rPlaylistName)) {
+    if (objHas(robotPlaylists, `${f} (ungrouped)`)) {
       await updatePlaylistTracks(
-        robotPlaylists[rPlaylistName],
-        robotGenreIds[gc],
+        robotPlaylists[`${f} (ungrouped)`],
+        robotIds[f]['ungroupedIds'],
         false
       );
     } else {
-      await createPlaylist(rPlaylistName, robotGenreIds[gc]);
+      await createPlaylist(`${f} (ungrouped)`, robotIds[f]['ungroupedIds']);
     }
   }
 
-  if (objHas(robotPlaylists, 'R (ungrouped)')) {
-    await updatePlaylistTracks(
-      robotPlaylists['R (ungrouped)'],
-      robotUngroupedIds,
-      false
-    );
-  } else {
-    await createPlaylist('R (ungrouped)', robotUngroupedIds);
-  }
-
-  return robotPlaylist;
+  return playlistToShow[narrow.get() ? 'M' : 'R'];
 }
