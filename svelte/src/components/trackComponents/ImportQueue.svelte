@@ -159,13 +159,16 @@ async function getFilesDataTransferItems(ev: DragEvent) {
     (fileEntry: FileSystemEntry): Promise<File> => {
       return new Promise(async (resolve) => {
         fileEntry.file((f: File): void => {
+          console.log('f:', f);
           f.filepath = fileEntry.fullPath.substring(1).replaceAll(/\//g, ' | ');
+          console.log('f.filepath', f.filepath);
           resolve(f);
         });
       });
     }
   );
 
+  console.log('files:', files);
   return await Promise.all(files);
 }
 

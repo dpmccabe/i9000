@@ -52,6 +52,7 @@ export function importTracks(
   files: File[],
   artistGenres: Map<string, ImportArtistGenre>
 ): void {
+  console.log('import files:', files);
   const impMap = new Map<string, ImportingMp3>();
 
   for (const file of files) {
