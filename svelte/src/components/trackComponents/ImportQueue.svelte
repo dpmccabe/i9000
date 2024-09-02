@@ -108,18 +108,13 @@ async function getFilesDataTransferItems(ev: DragEvent) {
 
   await Promise.all(
     dataTransferItemKeys.map(async (k: string): Promise<void> => {
-      console.log('k:', k);
       const item: DataTransferItem = ev.dataTransfer!.items[k];
-      console.log('item:', item);
       const entry: FileSystemEntry = item.webkitGetAsEntry();
-      console.log('entry:', entry);
       if (!entry) return;
 
       if (entry.isFile) {
-        console.log('isfile');
         fileEntries.push(entry);
       } else if (entry.isDirectory) {
-        console.log('isdir');
         return await walkDirRecursively(entry.createReader());
       }
     })
@@ -130,15 +125,11 @@ async function getFilesDataTransferItems(ev: DragEvent) {
   ): Promise<void> {
     return new Promise(async (resolve): Promise<void> => {
       directoryReader.readEntries(async (entries: FileSystemEntry[]) => {
-        console.log('entries:', entries);
         await Promise.all(
           entries.map(async (entry: FileSystemEntry): Promise<void> => {
-            console.log('map entry:', entry);
             if (entry.isFile) {
-              console.log('map isfile');
               fileEntries.push(entry);
             } else if (entry.isDirectory) {
-              console.log('map isdir');
               await walkDirRecursively(entry.createReader());
             }
           })
@@ -159,16 +150,13 @@ async function getFilesDataTransferItems(ev: DragEvent) {
     (fileEntry: FileSystemEntry): Promise<File> => {
       return new Promise(async (resolve) => {
         fileEntry.file((f: File): void => {
-          console.log('f:', f);
           f.filepath = fileEntry.fullPath.substring(1).replaceAll(/\//g, ' | ');
-          console.log('f.filepath', f.filepath);
           resolve(f);
         });
       });
     }
   );
 
-  console.log('files:', files);
   return await Promise.all(files);
 }
 

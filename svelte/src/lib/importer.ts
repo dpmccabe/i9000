@@ -35,7 +35,6 @@ export const stateCounts: Readable<Record<ImportState, number>> = derived(
   (
     theImportingMp3s: Map<string, ImportingMp3>
   ): Record<ImportState, number> => {
-    console.log('theImportingMp3s', theImportingMp3s);
     const sc: Record<ImportState, number> = { ...startingStateCounts };
 
     for (const impMp3 of theImportingMp3s.values()) {
@@ -52,7 +51,6 @@ export function importTracks(
   files: File[],
   artistGenres: Map<string, ImportArtistGenre>
 ): void {
-  console.log('import files:', files);
   const impMap = new Map<string, ImportingMp3>();
 
   for (const file of files) {
