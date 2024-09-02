@@ -56,10 +56,7 @@ export function importTracks(
   const impMap = new Map<string, ImportingMp3>();
 
   for (const file of files) {
-    if (
-      file.type === 'audio/mpeg' &&
-      file.name.toLowerCase().endsWith('.mp3')
-    ) {
+    if (file.name.toLowerCase().endsWith('.mp3')) {
       impMap.set(file.name, { file: file, state: 'todo', failureCount: 0 });
     }
   }
