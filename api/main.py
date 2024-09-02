@@ -13,10 +13,11 @@ from fastapi.logger import logger
 from fastapi.openapi.models import APIKey
 from fastapi.responses import JSONResponse
 
-from utils import mb as mb_utils, schemas, tracks as track_utils
+from utils import mb as mb_utils
+from utils import schemas
+from utils import tracks as track_utils
 from utils.api import ApiConfig, get_api_key
 from utils.cf_signed_url import make_signed_wildcard_url
-
 
 app = FastAPI()
 config = ApiConfig(app)

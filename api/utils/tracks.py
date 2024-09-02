@@ -216,5 +216,5 @@ def update_id3_tags(temp_f: str, updated_tags: dict[str, str]) -> None:
             logger.info(f"Setting {tag} to '{val}'")
             current_tags[tag] = str(val)
 
-    logger.info("Saving tags..." )
+    logger.info("Saving tags...")
     current_tags.save()
