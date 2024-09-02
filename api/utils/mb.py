@@ -1,10 +1,7 @@
-from __future__ import annotations
-
 import musicbrainzngs as mb
 import pandas as pd
-from psycopg2._psycopg import cursor
 from fastapi.logger import logger
-
+from psycopg2._psycopg import cursor
 
 # release group types to save in DB (ignoring audiobooks, bootlegs, etc.)
 valid_rel_types = {

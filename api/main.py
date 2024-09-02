@@ -136,8 +136,8 @@ async def import_track(
         clean_tags = track_utils.extract_id3_tags(temp_f)
         fp_duration = track_utils.fingerprint_track(temp_f)
 
-    id = fp_duration["id"]
-    perm_key = f"mp3s/{id}.mp3"
+    tid = fp_duration["id"]
+    perm_key = f"mp3s/{tid}.mp3"
 
     # copy from incoming/ to mp3s/ if not already done
     already_exists = track_utils.check_file_exists(

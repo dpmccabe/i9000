@@ -3,6 +3,7 @@ name = "api"
 version = "0.1.0"
 description = ""
 authors = ["Devin McCabe <devin.mccabe@gmail.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -22,8 +23,13 @@ cryptography = "^37.0.4"
 audioread = {git = "https://github.com/beetbox/audioread.git", rev = "ff9535d"}
 
 [tool.poetry.group.dev.dependencies]
-black = "^22.1.0"
+ruff = "^0.6.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = [
+    "I",  # isort formatting
+]

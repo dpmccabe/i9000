@@ -12,7 +12,6 @@ from fastapi.logger import logger
 from mutagen import File as Mp3File
 from mutagen.easyid3 import EasyID3
 
-
 # ID3 tag names that can be edited by EasyID3
 editable_tags = EasyID3.valid_keys.keys()
 
@@ -71,11 +70,11 @@ def fingerprint_track(f: str) -> dict[str, str | int]:
         .astype("string")
     )
 
-    id = tracks_to_fp["hash"].values[0]
-    logger.info(f"id := {id}")
+    tid = tracks_to_fp["hash"].values[0]
+    logger.info(f"id := {tid}")
 
     return {
-        "id": id,
+        "id": tid,
         "duration": tracks_to_fp["duration"].values[0],
         "bitrate": bitrate,
     }
@@ -217,5 +216,5 @@ def update_id3_tags(temp_f: str, updated_tags: dict[str, str]) -> None:
             logger.info(f"Setting {tag} to '{val}'")
             current_tags[tag] = str(val)
 
-    logger.info("Saving tags...")
+    logger.info("Saving tags..." )
     current_tags.save()
