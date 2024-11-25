@@ -6,7 +6,7 @@ export const robotSettings: RobotSettings = {
     other: { prop: 0.375, includeInUngrouped: true },
     world: { prop: 0.375, includeInUngrouped: true },
   },
-  ratingMults: { '1': 1, '2': 3, '3': 5 },
+  ratingMults: { '1': 2, '2': 5, '3': 8 },
   ungroupedTrackDurationLimit: 10 * 60 * 1000, // 10 minutes
   decayingCutsExp: 3,
   excessHours: 8,
