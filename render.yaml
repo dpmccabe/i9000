@@ -129,3 +129,18 @@ services:
           name: i9000-api-prod
           type: web
           property: host
+
+  - type: cron
+    name: i9000-clean
+    env: python
+    schedule: "0 */8 * * *"
+    autoDeploy: false
+    buildCommand: echo "none"
+    startCommand: 'curl -XPOST "https://${API_HOST}.onrender.com/clean" --header "x-api-key: ${API_KEY}"'
+    envVars:
+      - fromGroup: i9000-vars-prod
+      - key: API_HOST
+        fromService:
+          name: i9000-api-prod
+          type: web
+          property: host
