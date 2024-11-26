@@ -255,6 +255,9 @@ def do_clean_tmp_mp3s_dir(tmp_mp3s_dir: str, tmp_mp3s_max_size: int) -> None:
                 }
             )
 
+    if len(file_data) == 0:
+        return
+
     mp3s = pd.DataFrame(file_data)
 
     # delete oldest files beyond directory size limit
