@@ -8,7 +8,13 @@
   @typescript-eslint/no-unsafe-argument
 */
 import { DateTime } from 'luxon';
-import { db, formatDate, Play, type TabField, TabSettings } from "../../internal";
+import {
+  db,
+  formatDate,
+  nNewReleases,
+  type TabField,
+  TabSettings,
+} from '../../internal';
 
 export type Ackstate = 'new' | 'todo' | 'acked';
 
@@ -182,4 +188,5 @@ export async function ackRelease(
   `;
 
   await db(q, { id: releaseId, ackstate: ackstate.toUpperCase() });
+  nNewReleases.set(await getNNewReleases());
 }

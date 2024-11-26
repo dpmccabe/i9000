@@ -13,13 +13,15 @@
 </div>
 
 <script lang="ts">
-import { onDestroy, tick } from 'svelte';
+import { onDestroy, onMount, tick } from 'svelte';
 import {
   getNextReleaseResultsBatch,
   releaseFields,
   releaseResults,
   ReleaseSettings,
   releaseSettings,
+  nNewReleases,
+  getNNewReleases,
   statsContent,
 } from '../../internal';
 import Tab from '../Tab.svelte';
@@ -28,6 +30,10 @@ import ReleaseRow from './ReleaseRow.svelte';
 $: {
   statsContent.set($releaseResults?.statsContent ?? '');
 }
+
+onMount(async (): Promise<void> => {
+  nNewReleases.set(await getNNewReleases());
+});
 
 onDestroy((): void => {
   setTimeout((): void => {
