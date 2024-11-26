@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import datetime
 import itertools
+import os
 from hashlib import sha1
 
 import acoustid
@@ -218,3 +220,52 @@ def update_id3_tags(temp_f: str, updated_tags: dict[str, str]) -> None:
 
     logger.info("Saving tags...")
     current_tags.save()
+
+
+def do_clean_tmp_mp3s_dir(tmp_mp3s_dir: str, tmp_mp3s_max_size: int) -> None:
+    """
+    clean up temporary mp3s directory
+
+    Parameters
+    ----------
+    tmp_mp3s_dir : str
+        path to temporary mp3s directory
+    tmp_mp3s_max_size : int
+        maximum size of temporary mp3s directory (in bytes)
+
+    Returns
+    -------
+    None
+    """
+
+    file_data = []
+
+    for file_name in os.listdir(tmp_mp3s_dir):
+        file_path = os.path.join(tmp_mp3s_dir, file_name)
+
+        if os.path.isfile(file_path):
+            file_size = os.path.getsize(file_path)
+            update_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+
+            file_data.append(
+                {
+                    "filename": file_name,
+                    "size": file_size,
+                    "updated": update_time,
+                }
+            )
+
+    mp3s = pd.DataFrame(file_data)
+
+    # delete oldest files beyond directory size limit
+    mp3s = mp3s.sort_values("updated", ascending=False)
+    mp3s["cum_size"] = mp3s["size"].cumsum()
+    logger.info(f"{tmp_mp3s_dir} size is {mp3s['cum_size'].values[-1]} bytes")
+
+    to_delete = mp3s.loc[mp3s["cum_size"].gt(tmp_mp3s_max_size)]
+
+    if len(to_delete) > 0:
+        logger.info(f"Deleting {len(to_delete)} files from {tmp_mp3s_dir}")
+
+        for filename in to_delete["filename"]:
+            os.remove(os.path.join(tmp_mp3s_dir, filename))

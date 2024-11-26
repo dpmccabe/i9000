@@ -32,6 +32,10 @@ class ApiConfig:
         mb.set_format("json")
         mb.set_rate_limit(1, 1)
 
+        self.tmp_mp3s_dir = "/tmp/mp3s"
+        self.tmp_mp3s_max_size = int(1e9)  # in bytes
+        os.makedirs(self.tmp_mp3s_dir, exist_ok=True)
+
         self.s3_client = boto3.client(
             "s3",
             region_name="us-east-2",  # should be region available on render.com
@@ -62,11 +66,9 @@ class ApiConfig:
         )
 
 
-# name of header the API key is expected in requests from front-end
-api_key_header = APIKeyHeader(name="X-Api-Key", auto_error=False)
-
-
-async def get_api_key(api_key_header: str = Security(api_key_header)) -> str:
+async def get_api_key(
+    api_key_header: str = Security(APIKeyHeader(name="X-Api-Key", auto_error=False)),
+) -> str:
     """
     raise exception if provided API key in header is invalid, return correct key
     otherwise

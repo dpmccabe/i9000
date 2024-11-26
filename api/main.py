@@ -3,7 +3,6 @@ from __future__ import annotations
 import base64
 import os
 import time
-from tempfile import TemporaryDirectory
 
 import psycopg2
 import pylast
@@ -18,6 +17,7 @@ from utils import schemas
 from utils import tracks as track_utils
 from utils.api import ApiConfig, get_api_key
 from utils.cf_signed_url import make_signed_wildcard_url
+from utils.tracks import do_clean_tmp_mp3s_dir
 
 app = FastAPI()
 config = ApiConfig(app)
@@ -128,14 +128,13 @@ async def import_track(
 
     incoming_key = f"incoming/{body.filename}"
 
-    with TemporaryDirectory() as tmp_dir:
-        logger.info(f"Saving {body.filename} to {tmp_dir}...")
-        temp_f = os.path.join(tmp_dir, body.filename)
-        config.s3_client.download_file(config.bucket, incoming_key, temp_f)
+    logger.info(f"Saving {body.filename} to {config.tmp_mp3s_dir}...")
+    temp_f = os.path.join(config.tmp_mp3s_dir, body.filename)
+    config.s3_client.download_file(config.bucket, incoming_key, temp_f)
 
-        # get ID3 tags and other metadata
-        clean_tags = track_utils.extract_id3_tags(temp_f)
-        fp_duration = track_utils.fingerprint_track(temp_f)
+    # get ID3 tags and other metadata
+    clean_tags = track_utils.extract_id3_tags(temp_f)
+    fp_duration = track_utils.fingerprint_track(temp_f)
 
     tid = fp_duration["id"]
     perm_key = f"mp3s/{tid}.mp3"
@@ -213,17 +212,18 @@ async def retag_tracks(
         for track_id, updated_tags in body.track_tags.items():
             obj_key = f"mp3s/{track_id}.mp3"
 
-            with TemporaryDirectory() as tmp_dir:
-                logger.info(f"Downloading {obj_key} to {tmp_dir}...")
-                temp_f = os.path.join(tmp_dir, f"{track_id}.mp3")
+            logger.info(f"Downloading {obj_key} to {config.tmp_mp3s_dir}...")
+            temp_f = os.path.join(config.tmp_mp3s_dir, f"{track_id}.mp3")
+
+            if not os.path.isfile(temp_f):
                 config.s3_client.download_file(config.bucket, obj_key, temp_f)
 
-                track_utils.update_id3_tags(temp_f, updated_tags)
+            track_utils.update_id3_tags(temp_f, updated_tags)
 
-                logger.info("Reuploading file...")
-                config.s3_client.upload_file(
-                    Filename=temp_f, Bucket=config.bucket, Key=obj_key
-                )
+            logger.info("Reuploading file...")
+            config.s3_client.upload_file(
+                Filename=temp_f, Bucket=config.bucket, Key=obj_key
+            )
 
     except Exception as err:
         logger.error(err)
@@ -302,3 +302,20 @@ async def mb_check(_api_key: APIKey = Depends(get_api_key)) -> None:
             mb_utils.checked_artist(cur, artist_id)
 
     logger.info("Done.")
+
+
+@app.post("/clean")
+async def clean_tmp_mp3s_dir(_api_key: APIKey = Depends(get_api_key)) -> None:
+    """
+    clean up temporary mp3s directory
+
+    Parameters
+    ----------
+    _api_key : Depends(get_api_key)
+
+    Returns
+    -------
+    None
+    """
+
+    do_clean_tmp_mp3s_dir(config.tmp_mp3s_dir, config.tmp_mp3s_max_size)
