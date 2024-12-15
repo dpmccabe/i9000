@@ -71,6 +71,7 @@ export const trackFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['title', ...baseSortCols],
     aggregatable: false,
+    globallySearchable: true,
   },
   artist: {
     dbCols: ['albumArtist', 'artist'],
@@ -83,6 +84,7 @@ export const trackFields: Record<string, TabField> = {
     sortable: true,
     sortCols: baseSortCols,
     aggregatable: true,
+    globallySearchable: true,
   },
   album: {
     dbCols: ['album'],
@@ -95,6 +97,7 @@ export const trackFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['album', 'albumArtist', 'discI', 'trackI'],
     aggregatable: true,
+    globallySearchable: true,
   },
   comments: {
     dbCols: ['comments'],
@@ -132,6 +135,7 @@ export const trackFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['composer'],
     aggregatable: false,
+    globallySearchable: true,
   },
   grouping: {
     dbCols: ['grouping'],
@@ -144,6 +148,7 @@ export const trackFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['grouping', 'trackI'],
     aggregatable: true,
+    globallySearchable: true,
   },
   disc: {
     dbCols: ['discI', 'discN'],

@@ -64,6 +64,7 @@ export const playFields: Record<string, TabField> = {
       sortable: false,
       filterType: undefined,
       aggregatable: false,
+      globallySearchable: false,
     },
     artist: {
       displayed: true,
@@ -73,6 +74,7 @@ export const playFields: Record<string, TabField> = {
       sortable: false,
       filterType: undefined,
       aggregatable: false,
+      globallySearchable: false,
     },
     album: {
       displayed: true,
@@ -82,6 +84,7 @@ export const playFields: Record<string, TabField> = {
       sortable: false,
       filterType: undefined,
       aggregatable: false,
+      globallySearchable: false,
     },
     comments: {
       displayed: false,
@@ -106,6 +109,7 @@ export const playFields: Record<string, TabField> = {
       aggregatable: false,
       sortable: false,
       filterType: undefined,
+      globallySearchable: false,
     },
     grouping: {
       displayed: false,
@@ -115,6 +119,7 @@ export const playFields: Record<string, TabField> = {
       sortable: false,
       filterType: undefined,
       aggregatable: false,
+      globallySearchable: false,
     },
     disc: {
       displayed: false,

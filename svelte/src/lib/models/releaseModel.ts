@@ -51,6 +51,18 @@ export const releaseFields: Record<string, TabField> = {
     aggregatable: true,
     aggregateFlat: true,
   },
+  artistNamesS: {
+    dbCols: [],
+    displayed: false,
+    mobileDisplayed: false,
+    displayName: 'Artist',
+    truncatable: false,
+    numeric: false,
+    sortable: false,
+    aggregatable: false,
+    aggregateFlat: false,
+    globallySearchable: true,
+  },
   title: {
     dbCols: ['title'],
     displayed: true,
@@ -62,6 +74,7 @@ export const releaseFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['title', 'artistNames'],
     aggregatable: false,
+    globallySearchable: true,
   },
   types: {
     dbCols: ['types'],

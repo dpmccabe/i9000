@@ -28,6 +28,7 @@ export const albumFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['album', 'albumArtist'],
     aggregatable: false,
+    globallySearchable: true,
   },
   albumArtist: {
     dbCols: ['albumArtist'],
@@ -40,6 +41,7 @@ export const albumFields: Record<string, TabField> = {
     sortable: true,
     sortCols: ['albumArtist', 'album'],
     aggregatable: true,
+    globallySearchable: true,
   },
   genre: {
     dbCols: ['genre', 'genreColor'],

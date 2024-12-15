@@ -6087,6 +6087,7 @@ type Release {
   createdAt: BigInt
   artistIds: [UUID]
   artistNames: [String]
+  artistNamesS: String
 }
 
 """A `Release` edge in the connection."""
@@ -6184,6 +6185,9 @@ type ReleaseDistinctCountAggregates {
 
   """Distinct count of artistNames across the matching connection"""
   artistNames: BigInt
+
+  """Distinct count of artistNamesS across the matching connection"""
+  artistNamesS: BigInt
 }
 
 type ReleaseMinAggregates {
@@ -6266,6 +6270,7 @@ enum ReleasesGroupBy {
   CREATED_AT
   ARTIST_IDS
   ARTIST_NAMES
+  ARTIST_NAMES_S
 }
 
 """Conditions for `Release` aggregates."""
@@ -6353,6 +6358,8 @@ enum ReleasesOrderBy {
   ARTIST_IDS_DESC
   ARTIST_NAMES_ASC
   ARTIST_NAMES_DESC
+  ARTIST_NAMES_S_ASC
+  ARTIST_NAMES_S_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
 }
@@ -6384,6 +6391,9 @@ input ReleaseCondition {
 
   """Checks for equality with the object’s `artistNames` field."""
   artistNames: [String]
+
+  """Checks for equality with the object’s `artistNamesS` field."""
+  artistNamesS: String
 }
 
 """
@@ -6413,6 +6423,9 @@ input ReleaseFilter {
 
   """Filter by the object’s `artistNames` field."""
   artistNames: StringListFilter
+
+  """Filter by the object’s `artistNamesS` field."""
+  artistNamesS: StringFilter
 
   """Checks for all expressions in this list."""
   and: [ReleaseFilter!]

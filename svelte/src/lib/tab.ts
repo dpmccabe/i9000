@@ -32,12 +32,10 @@ export interface TabField {
   formatter?: (x: any) => string;
   rangeType?: TabRangeType;
   fake?: boolean;
+  globallySearchable?: boolean;
 }
 
-export type TabFieldOverride = Omit<
-  TabField,
-  'dbCols' | 'numeric' | 'isEnum'
->;
+export type TabFieldOverride = Omit<TabField, 'dbCols' | 'numeric' | 'isEnum'>;
 
 export interface TabSort {
   col: string;
@@ -306,10 +304,26 @@ export abstract class TabSettings<T> {
 
         theFilterArgs.push(maybeNullFilters);
       } else if ('text' in v) {
-        for (const token of tokenizeText(v.text!)) {
-          theFilterArgs.push({
-            [k]: { matchUnaccentInsensitive: `\\m${token}` },
-          });
+        if (k === 'global') {
+          const globParts: Record<string, any>[] = [];
+
+          for (const [tabK, tabV] of Object.entries(this.tabFields)) {
+            if (tabV.globallySearchable) {
+              for (const token of tokenizeText(v.text!)) {
+                globParts.push({
+                  [tabK]: { matchUnaccentInsensitive: `\\m${token}` },
+                });
+              }
+            }
+          }
+
+          theFilterArgs.push({ or: globParts });
+        } else {
+          for (const token of tokenizeText(v.text!)) {
+            theFilterArgs.push({
+              [k]: { matchUnaccentInsensitive: `\\m${token}` },
+            });
+          }
         }
       }
     }

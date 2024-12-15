@@ -4,6 +4,26 @@
 
   <div slot="content" class="content">
     <div id="tab-filters-grid" class="{tabId}">
+      {#if Object.values(fields).some((f) => f.globallySearchable)}
+        <label></label>
+        <div class="global">
+          <TypingWaiter
+            leftIcon="{faSearch}"
+            waitTime="{200}"
+            text="{settings.filters.get('global')?.text}"
+            on:textUpdated="{(e) => {
+              if (e.detail === '') {
+                settings.filters.delete('global');
+              } else {
+                settings.filters.set('global', { text: e.detail });
+              }
+
+              // eslint-disable-next-line no-self-assign
+              settings.filters = settings.filters;
+            }}" />
+        </div>
+      {/if}
+
       {#each Object.keys(fields) as field}
         {#if fields[field].aggregatable || fields[field].filterType != null}
           <label>{fields[field].displayName}</label>
