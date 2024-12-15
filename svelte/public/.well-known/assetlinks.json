@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "click.i9000.twa",
+        "sha256_cert_fingerprints": ["5E:80:D4:22:E6:40:0B:74:0C:14:66:9D:06:ED:8C:23:B0:41:BB:1E:ED:92:83:27:EF:5B:58:85:73:2B:DB:A5"]
+      }
+    }]
