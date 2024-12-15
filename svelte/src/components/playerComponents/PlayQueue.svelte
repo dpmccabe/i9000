@@ -14,11 +14,11 @@
             class="{track.genreColor}"
             class:playing="{track.id === $playingTrack.id}"
             on:dblclick="{async () => {
-              await jumpToQueuePosition(track.ix);
+              await jumpToQueuePosition(track.ix ?? 0);
               activePane.set('main');
             }}"
-            on:touchend|preventDefault="{() => playOnMobile(track.ix)}">
-            <td class="ix">{track.ix + 1}</td>
+            on:touchend|preventDefault="{() => playOnMobile(track.ix ?? 0)}">
+            <td class="ix">{(track.ix ?? 0) + 1}</td>
 
             <td class="artist-title">
               <b>{track.artist}</b><br />{track.title}

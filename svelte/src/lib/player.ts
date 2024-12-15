@@ -79,9 +79,16 @@ export function setQueuePosition(
     return;
   }
 
-  queuePosition.set([$playingTrack.ix!, $playQueue.length - 1]);
-  canPlayPrev.set(true);
-  canPlayNext.set($playingTrack.ix! < $playQueue.length - 1);
+  if ($playingTrack.ix == null) {
+    // inside Songs
+    queuePosition.set([0, $playQueue.length - 1]);
+    canPlayPrev.set(false);
+    canPlayNext.set(false);
+  } else {
+    queuePosition.set([$playingTrack.ix!, $playQueue.length - 1]);
+    canPlayPrev.set(true);
+    canPlayNext.set($playingTrack.ix! < $playQueue.length - 1);
+  }
 }
 
 function setMediaHandlers(): void {
@@ -125,16 +132,22 @@ export async function startPlayingInPlaylist(
   );
 
   const trackToPlay: Track = specificTrack ?? tracksSorted[0];
+  const curPlaylistId: number | null = currentPlaylist.get()?.id ?? null;
 
   batch((): void => {
-    playingPlaylistId.set(currentPlaylist.get()?.id ?? null);
-    playQueue.set(tracksSorted);
     playingTrack.set(trackToPlay);
+
+    if (curPlaylistId == null) {
+      playQueue.set([trackToPlay]);
+    } else {
+      playingPlaylistId.set(curPlaylistId);
+      playQueue.set(tracksSorted);
+    }
   });
 
   await playTrackAudio();
 
-  if (currentPlaylist.get() != null) {
+  if (curPlaylistId != null) {
     localStorage.setItem(
       'playing-playlist-id',
       String(currentPlaylist.get()!.id)
