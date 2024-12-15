@@ -44,7 +44,7 @@
             if (e.detail === '') {
               filterRegex.set(undefined);
             } else {
-              filterRegex.set(new RegExp('\\b' + escapeRegExp(e.detail), 'i'));
+              filterRegex.set(new RegExp('\\b' + escapeRegExp(normString(e.detail)), 'i'));
             }
           }}" />
 
@@ -102,7 +102,7 @@ import {
 import { createEventDispatcher, onMount, tick } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import { type DispatchOptions } from 'svelte/internal';
-import { clickOutside, escapeRegExp, narrow } from '../../internal';
+import { clickOutside, escapeRegExp, narrow, normString } from '../../internal';
 import {
   derived,
   type Readable,
@@ -148,7 +148,7 @@ const valCountsIsActive: Readable<ValCountIsActive> = derived(
     for (const k of Object.keys(theValCounts)) {
       if (theSelectedValues.has(k)) {
         newValCountsActive[k] = theValCounts[k];
-      } else if (theFilterRegex == undefined || theFilterRegex.test(k)) {
+      } else if (theFilterRegex == undefined || theFilterRegex.test(normString(k))) {
         newValCountsInactive[k] = theValCounts[k];
       }
     }

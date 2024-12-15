@@ -136,6 +136,8 @@ export function handleEscape(
     activePane.set('main');
   } else if (activePane.get() === 'help') {
     activePane.set('main');
+  } else if (activePane.get() === 'import-queue') {
+    activePane.set('main');
   } else if (activePane.get() === 'tab-filters') {
     activePane.set('main');
   } else if (activePane.get() === 'playlists-editor') {
