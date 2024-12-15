@@ -11,7 +11,6 @@
     "check": "svelte-check --tsconfig ./tsconfig.json --compiler-warnings 'a11y-aria-attributes:ignore,a11y-incorrect-aria-attribute-type:ignore,a11y-unknown-aria-attribute:ignore,a11y-hidden:ignore,a11y-misplaced-role:ignore,a11y-unknown-role:ignore,a11y-no-abstract-role:ignore,a11y-no-redundant-roles:ignore,a11y-role-has-required-aria-props:ignore,a11y-accesskey:ignore,a11y-autofocus:ignore,a11y-misplaced-scope:ignore,a11y-positive-tabindex:ignore,a11y-invalid-attribute:ignore,a11y-missing-attribute:ignore,a11y-img-redundant-alt:ignore,a11y-label-has-associated-control:ignore,a11y-media-has-caption:ignore,a11y-distracting-elements:ignore,a11y-structure:ignore,a11y-mouse-events-have-key-events:ignore,a11y-missing-content:ignore,a11y-click-events-have-key-events:ignore'"
   },
   "devDependencies": {
-    "@bubblewrap/cli": "^1.21.0",
     "@oddbird/blend": "^0.2.4",
     "@sveltejs/vite-plugin-svelte": "^2.0.4",
     "@tsconfig/svelte": "^4.0.1",
@@ -38,10 +37,10 @@
     "prettier-plugin-svelte": "^2.10.0",
     "rimraf": "^4.4.1",
     "sass": "^1.61.0",
-    "svelte": "^3.58.0",
+    "svelte": "^3.59.2",
     "svelte-check": "^3.2.0",
-    "svelte-eslint-parser": "^0.26.0",
-    "svelte-fa": "^3.0.3",
+    "svelte-eslint-parser": "^0.43.0",
+    "svelte-fa": "^3.0.4",
     "svelte-preprocess": "^5.0.3",
     "tslib": "^2.5.0",
     "typescript": "^5.0.4",
@@ -49,9 +48,9 @@
     "vite-plugin-pwa": "^0.14.7"
   },
   "dependencies": {
-    "@fortawesome/free-brands-svg-icons": "^6.4.0",
-    "@fortawesome/free-regular-svg-icons": "^6.4.0",
-    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/free-brands-svg-icons": "^6.7.1",
+    "@fortawesome/free-regular-svg-icons": "^6.7.1",
+    "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@zerodevx/svelte-toast": "^0.9.3",
     "idb": "^7.1.1",
     "idb-keyval": "^6.2.0",
