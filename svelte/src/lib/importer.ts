@@ -14,7 +14,7 @@ import {
   trackExists,
   trimWithin,
 } from '../internal';
-import { derived, type Readable, writable, type Writable } from './tansuStore';
+import { writable, type Writable } from './tansuStore';
 
 type Presign = { fields: any; url: string };
 
@@ -27,24 +27,23 @@ const startingStateCounts: Record<ImportState, number> = {
   failed: 0,
 };
 
+export const stateCounts: Writable<Record<ImportState, number>> =
+  writable(startingStateCounts);
+
 export const importingMp3s: Writable<Map<string, ImportingMp3>> = writable(
   new Map<string, ImportingMp3>()
 );
-export const stateCounts: Readable<Record<ImportState, number>> = derived(
-  importingMp3s,
-  (
-    theImportingMp3s: Map<string, ImportingMp3>
-  ): Record<ImportState, number> => {
-    const sc: Record<ImportState, number> = { ...startingStateCounts };
 
-    for (const impMp3 of theImportingMp3s.values()) {
-      sc[impMp3.state]++;
-    }
+importingMp3s.subscribe((theImportingMp3s: Map<string, ImportingMp3>): void => {
+  const sc: Record<ImportState, number> = { ...startingStateCounts };
 
-    return sc;
-  },
-  startingStateCounts
-);
+  for (const impMp3 of theImportingMp3s.values()) {
+    sc[impMp3.state]++;
+  }
+
+  stateCounts.set(sc);
+});
+
 let importingFn: number | null = null;
 
 export function importTracks(
@@ -76,6 +75,7 @@ export function importTracks(
 function processImportQueue(
   artistGenres: Map<string, ImportArtistGenre>
 ): void {
+  importingMp3s.set(importingMp3s.get());
   let nextImportKey: null | string = null;
 
   for (const [filename, impMp3] of importingMp3s.get()!) {
@@ -84,17 +84,17 @@ function processImportQueue(
     }
   }
 
+  const curStateCounts: Record<ImportState, number> = stateCounts.get();
+
   if (
-    stateCounts.get().todo +
-      stateCounts.get().uploading +
-      stateCounts.get().retrying ===
+    curStateCounts.todo + curStateCounts.uploading + curStateCounts.retrying ===
     0
   ) {
     logMessage('Done importing MP3s files', 'success');
     clearImportingFn();
   } else if (
     nextImportKey != null &&
-    stateCounts.get().uploading < maxConcurrentImports
+    curStateCounts.uploading < maxConcurrentImports
   ) {
     importingMp3s.update(
       (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {

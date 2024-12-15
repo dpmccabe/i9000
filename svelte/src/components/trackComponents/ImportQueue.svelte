@@ -1,4 +1,4 @@
-<Modal id="help">
+<Modal id="import-queue-modal">
   <span slot="title">Import Queue</span>
 
   <div slot="content">
@@ -56,11 +56,10 @@
 
 <script lang="ts">
 import { faBroom, faClose } from '@fortawesome/free-solid-svg-icons';
-import { onDestroy, onMount } from 'svelte';
+import { onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import {
   cleanImportQueue,
-  clearImportingFn,
   getAllArtistGenres,
   type ImportArtistGenre,
   importingMp3s,
@@ -74,10 +73,6 @@ let artistGenres: Map<string, ImportArtistGenre>;
 
 onMount(async (): Promise<void> => {
   artistGenres = await getAllArtistGenres();
-});
-
-onDestroy((): void => {
-  clearImportingFn();
 });
 
 function removeDragClass(): void {
