@@ -46,6 +46,10 @@ export async function initPlayer(): Promise<void> {
   const savedPlayingTrackId: string | null =
     localStorage.getItem('playing-track-id');
 
+  if (!mediaHandlersSet.get()) {
+    setMediaHandlers();
+  }
+
   if (savedPlayingPlaylistIdItem != null && savedPlayingTrackId != null) {
     const pPlaylistId: number = parseInt(savedPlayingPlaylistIdItem);
     const pPlaylist: Playlist = await getPlaylist(pPlaylistId);
@@ -93,8 +97,22 @@ export function setQueuePosition(
 
 function setMediaHandlers(): void {
   const actionHandlers: [MediaSessionAction, MediaSessionActionHandler][] = [
-    ['play', async (): Promise<void> => await playOrPause()],
-    ['pause', async (): Promise<void> => await playOrPause()],
+    [
+      'play',
+      async (): Promise<void> => {
+        console.log('play');
+        navigator.mediaSession.playbackState = 'playing';
+        await playOrPause();
+      },
+    ],
+    [
+      'pause',
+      async (): Promise<void> => {
+        console.log('pause');
+        navigator.mediaSession.playbackState = 'paused';
+        await playOrPause();
+      },
+    ],
     ['previoustrack', async (): Promise<void> => await prevTrack()],
     ['nexttrack', async (): Promise<void> => await nextTrack()],
     ['stop', (): void => stopPlayback()],
@@ -240,6 +258,20 @@ async function aePlay(
 
     const track: Track = playingTrack.get()!;
 
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title ?? undefined,
+        artist: track.artist ?? undefined,
+        album: track.album ?? undefined,
+        artwork: [
+          { src: '/images/icon128.png', sizes: '128x128', type: 'image/png' },
+          { src: '/images/icon192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/images/icon256.png', sizes: '256x256', type: 'image/png' },
+          { src: '/images/icon512.png', sizes: '512x512', type: 'image/png' },
+        ],
+      });
+    }
+
     if (localMp3FolderHandle.get() != null) {
       try {
         const localMp3FileHandle: FileSystemFileHandle =
@@ -272,10 +304,21 @@ async function aePlay(
     }
 
     ae.volume = import.meta.env.VITE_ENV === 'dev' ? 0 : 1;
-    ae.onplay = (): void => paused.set(false);
-    ae.onpause = (): void => paused.set(true);
+    ae.onplay = (): void => {
+      console.log('onplay');
+      navigator.mediaSession.playbackState = 'paused';
+      paused.set(false);
+    };
+    ae.onpause = (): void => {
+      console.log('onpause');
+      navigator.mediaSession.playbackState = 'playing';
+      paused.set(true);
+    };
     ae.ontimeupdate = (): void => currentTime.set(ae!.currentTime);
-    ae.onended = trackEnded;
+    ae.onended = async (): Promise<void> => {
+      navigator.mediaSession.playbackState = 'none';
+      await trackEnded();
+    };
 
     if (track.startAt == null) {
       ae.currentTime = 0;
@@ -287,9 +330,14 @@ async function aePlay(
       paused.set(true);
       ae.currentTime = resumePausedAt;
       currentTime.set(resumePausedAt);
+      // await ae.play();
+      ae.pause();
+      navigator.mediaSession.playbackState = 'paused';
     } else {
       await ae.play();
     }
+
+    console.log('navigator.mediaSession', navigator.mediaSession);
 
     batch((): void => {
       audioElement.set(ae);
@@ -319,24 +367,6 @@ async function aePlay(
 }
 
 function notifyTrackPlay(track: Track): void {
-  if ('mediaSession' in navigator) {
-    if (!mediaHandlersSet.get()) {
-      setMediaHandlers();
-    }
-
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: track.title ?? undefined,
-      artist: track.artist ?? undefined,
-      album: track.album ?? undefined,
-      artwork: [
-        { src: '/images/icon128.png', sizes: '128x128', type: 'image/png' },
-        { src: '/images/icon192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/images/icon256.png', sizes: '256x256', type: 'image/png' },
-        { src: '/images/icon512.png', sizes: '512x512', type: 'image/png' },
-      ],
-    });
-  }
-
   let notifBody: string = track.artist!;
 
   if (track.album) {
@@ -354,6 +384,7 @@ function notifyTrackPlay(track: Track): void {
 }
 
 export async function playOrPause(): Promise<void> {
+  console.log('playOrPause', paused.get());
   if (playingTrack.get() == null) {
     // start playing at top of current playlist
     if (trackResults.get()?.count! > 0) await startPlayingInPlaylist();
