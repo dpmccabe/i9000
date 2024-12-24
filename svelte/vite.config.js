@@ -20,6 +20,11 @@ let config = {
       },
     }),
     VitePWA({
+      injectRegister: 'script',
+      registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true
+      },
       includeAssets: ['favicon.png', 'robots.txt'],
       manifest: {
         name: 'Incandenza 9000',
