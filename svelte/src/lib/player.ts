@@ -40,15 +40,13 @@ import {
 import { batch } from './tansuStore';
 
 export async function initPlayer(): Promise<void> {
+  if (!mediaHandlersSet.get()) setMediaHandlers();
+
   const savedPlayingPlaylistIdItem: string | null = localStorage.getItem(
     'playing-playlist-id'
   );
   const savedPlayingTrackId: string | null =
     localStorage.getItem('playing-track-id');
-
-  if (!mediaHandlersSet.get()) {
-    setMediaHandlers();
-  }
 
   if (savedPlayingPlaylistIdItem != null && savedPlayingTrackId != null) {
     const pPlaylistId: number = parseInt(savedPlayingPlaylistIdItem);
@@ -97,24 +95,10 @@ export function setQueuePosition(
 
 function setMediaHandlers(): void {
   const actionHandlers: [MediaSessionAction, MediaSessionActionHandler][] = [
-    [
-      'play',
-      async (): Promise<void> => {
-        console.log('play');
-        navigator.mediaSession.playbackState = 'playing';
-        await playOrPause();
-      },
-    ],
-    [
-      'pause',
-      async (): Promise<void> => {
-        console.log('pause');
-        navigator.mediaSession.playbackState = 'paused';
-        await playOrPause();
-      },
-    ],
-    ['previoustrack', async (): Promise<void> => await prevTrack()],
-    ['nexttrack', async (): Promise<void> => await nextTrack()],
+    ['play', playOrPause],
+    ['pause', playOrPause],
+    ['previoustrack', prevTrack],
+    ['nexttrack', nextTrack],
     ['stop', (): void => stopPlayback()],
     ['seekbackward', (): void => scrubRelative(-3)],
     ['seekforward', (): void => scrubRelative(3)],
@@ -135,7 +119,7 @@ function setMediaHandlers(): void {
 export async function jumpToQueuePosition(pos: number): Promise<void> {
   const nextTrack: Track = playQueue.get()[pos];
   playingTrack.set(nextTrack);
-  await playTrackAudio();
+  await aePlay(1);
 }
 
 export async function startPlayingInPlaylist(
@@ -163,7 +147,7 @@ export async function startPlayingInPlaylist(
     }
   });
 
-  await playTrackAudio();
+  await aePlay(1);
 
   if (curPlaylistId != null) {
     localStorage.setItem(
@@ -206,7 +190,7 @@ export async function prevTrack(): Promise<void> {
 
   const nextTrack: Track = playQueue.get()[queuePosition.get()![0] - 1];
   playingTrack.set(nextTrack);
-  await playTrackAudio();
+  await aePlay(1);
 }
 
 export async function nextTrack(): Promise<void> {
@@ -216,39 +200,23 @@ export async function nextTrack(): Promise<void> {
 
   const nextTrack: Track = playQueue.get()[queuePosition.get()![0] + 1];
   playingTrack.set(nextTrack);
-  await playTrackAudio();
+  await aePlay(1);
 }
 
-async function playTrackAudio(): Promise<void> {
-  resetPlayedChecker();
-
-  const oldAe: HTMLAudioElement | null = audioElement.get();
-
-  if (oldAe != null) {
-    duration.set(null);
-    currentTime.set(null);
-
-    const mcf: number | null = markCheckFn.get();
-
-    if (mcf != null) {
-      window.clearInterval(mcf);
-      markCheckFn.set(null);
-    }
-
-    oldAe.onplay = null;
-    oldAe.onpause = null;
-    oldAe.ontimeupdate = null;
-    oldAe.onended = null;
-    oldAe.src = '';
-  }
-
-  await aePlay(1);
+function stopAudio(ae: HTMLAudioElement) {
+  ae.pause();
+  ae.currentTime = 0;
 }
 
 async function aePlay(
   attemptNo: number,
   resumePausedAt: number | null = null
 ): Promise<void> {
+  resetPlayedChecker();
+
+  const oldAe: HTMLAudioElement | null = audioElement.get();
+  if (oldAe != null) stopAudio(oldAe);
+
   let ae: HTMLAudioElement | null = null;
   let nextAe: HTMLAudioElement | null = null;
 
@@ -303,22 +271,26 @@ async function aePlay(
       ae.src = mp3Src;
     }
 
-    ae.volume = import.meta.env.VITE_ENV === 'dev' ? 0 : 1;
-    ae.onplay = (): void => {
-      console.log('onplay');
-      navigator.mediaSession.playbackState = 'paused';
-      paused.set(false);
-    };
-    ae.onpause = (): void => {
-      console.log('onpause');
+    ae.volume = import.meta.env.VITE_ENV === 'dev' ? 1 : 1;
+
+    ae.addEventListener('play', (): void => {
       navigator.mediaSession.playbackState = 'playing';
+      paused.set(false);
+    });
+
+    ae.addEventListener('pause', (): void => {
+      navigator.mediaSession.playbackState = 'paused';
       paused.set(true);
-    };
-    ae.ontimeupdate = (): void => currentTime.set(ae!.currentTime);
-    ae.onended = async (): Promise<void> => {
+    });
+
+    ae.addEventListener('ended', async (): Promise<void> => {
       navigator.mediaSession.playbackState = 'none';
       await trackEnded();
-    };
+    });
+
+    ae.addEventListener('timeupdate', (): void => {
+      currentTime.set(ae!.currentTime);
+    });
 
     if (track.startAt == null) {
       ae.currentTime = 0;
@@ -327,17 +299,22 @@ async function aePlay(
     }
 
     if (resumePausedAt != null) {
-      paused.set(true);
       ae.currentTime = resumePausedAt;
-      currentTime.set(resumePausedAt);
-      // await ae.play();
-      ae.pause();
-      navigator.mediaSession.playbackState = 'paused';
+
+      try {
+        ae.volume = 0;
+        await ae.play();
+        ae.pause();
+      } catch (e: unknown) {
+        // pause event cannot trigger unless a play has already happened
+        navigator.mediaSession.playbackState = 'paused';
+        paused.set(true);
+      } finally {
+        ae.volume = import.meta.env.VITE_ENV === 'dev' ? 1 : 1;
+      }
     } else {
       await ae.play();
     }
-
-    console.log('navigator.mediaSession', navigator.mediaSession);
 
     batch((): void => {
       audioElement.set(ae);
@@ -384,7 +361,6 @@ function notifyTrackPlay(track: Track): void {
 }
 
 export async function playOrPause(): Promise<void> {
-  console.log('playOrPause', paused.get());
   if (playingTrack.get() == null) {
     // start playing at top of current playlist
     if (trackResults.get()?.count! > 0) await startPlayingInPlaylist();
@@ -394,10 +370,8 @@ export async function playOrPause(): Promise<void> {
 
     if (paused.get()) {
       await ae.play();
-      navigator.mediaSession.playbackState = 'paused';
     } else {
       ae.pause();
-      navigator.mediaSession.playbackState = 'playing';
     }
   }
 }
@@ -426,10 +400,7 @@ export async function trackEnded(): Promise<void> {
 
 export function stopPlayback(fromSwipe = false): void {
   const ae: HTMLAudioElement | null = audioElement.get();
-  if (ae == null) return;
-  ae.pause();
-  ae.currentTime = 0;
-  ae.src = '';
+  if (ae != null) stopAudio(ae);
 
   const nextAe: HTMLAudioElement | null = nextAudioElement.get();
   if (nextAe != null) nextAe.src = '';
