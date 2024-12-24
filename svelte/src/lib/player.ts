@@ -363,8 +363,10 @@ export async function playOrPause(): Promise<void> {
 
     if (paused.get()) {
       await ae.play();
+      navigator.mediaSession.playbackState = 'paused';
     } else {
       ae.pause();
+      navigator.mediaSession.playbackState = 'playing';
     }
   }
 }
@@ -709,7 +711,7 @@ export async function updateQueueFromPlaylist(
   });
 
   if (pTrackIndex === -1) {
-    await stopPlayback();
+    stopPlayback();
   } else {
     // metadata might have changed due to editing
     playingTrack.set(tracks[pTrackIndex]);
