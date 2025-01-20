@@ -34,6 +34,7 @@ import {
   type TabSettingsQueryParam,
   type Track,
   trackResults,
+  trackSettings,
   TrackSettings,
   updateTracks,
 } from '../internal';
@@ -548,19 +549,7 @@ async function markTrackAsPlayed(track: Track): Promise<void> {
     return t.id === track.id;
   });
 
-  if (tix !== -1) {
-    // updated track is in active playlist
-    tracks[tix] = track;
-
-    trackResults.update(
-      (
-        theTrackResult: TabResults<Track> | undefined
-      ): TabResults<Track> | undefined => {
-        if (theTrackResult != null) theTrackResult.results = tracks;
-        return theTrackResult;
-      }
-    );
-  }
+  if (tix !== -1) trackSettings.touch();
 
   updateTrackInPlayQueue(track);
 }
