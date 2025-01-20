@@ -121,7 +121,11 @@ export async function clearRecentlyPlayedTracks(
 ): Promise<void> {
   const thePlaylist: Playlist = playlist ?? playingPlaylist.get()!;
 
-  if ([allPlaylistName, 'Unaccompanied', 'Learn'].includes(thePlaylist?.name)) {
+  if (
+    [allPlaylistName, 'Unaccompanied', 'Learn', 'Import'].includes(
+      thePlaylist?.name
+    )
+  ) {
     return;
   }
 
@@ -231,7 +235,7 @@ export async function appendTracksToPlaylist(
       false
     );
 
-    if (playlist.id === currentPlaylist.get()!.id) {
+    if (playlist.id === currentPlaylist.get()?.id) {
       trackSettings.touch();
     }
 
