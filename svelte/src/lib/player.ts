@@ -89,7 +89,7 @@ export function setQueuePosition(
     canPlayNext.set(false);
   } else {
     queuePosition.set([$playingTrack.ix!, $playQueue.length - 1]);
-    canPlayPrev.set(true);
+    canPlayPrev.set($playingTrack.ix! > 0);
     canPlayNext.set($playingTrack.ix! < $playQueue.length - 1);
   }
 }
@@ -178,12 +178,10 @@ export async function prevTrack(): Promise<void> {
   (document.activeElement as HTMLElement).blur();
 
   const ae: HTMLAudioElement = audioElement.get()!;
-  const pTrack: Track | null = playingTrack.get();
+  const pTrack: Track | null = playingTrack.get()!;
 
-  if (pTrack && (!canPlayPrev.get() || ae.currentTime >= 3)) {
-    let startAt = 0;
-    if (pTrack.startAt != null) startAt = pTrack.startAt / 1000;
-    ae.currentTime = startAt;
+  if (ae.currentTime >= 3 || !canPlayPrev.get()) {
+    ae.currentTime = pTrack.startAt != null ? pTrack.startAt / 1000 : 0;
     return;
   }
 
@@ -205,8 +203,13 @@ export async function nextTrack(): Promise<void> {
 }
 
 function stopAudio(ae: HTMLAudioElement) {
-  ae.pause();
-  ae.currentTime = 0;
+  try {
+    ae.pause();
+    ae.removeAttribute('src');
+    ae.load();
+  } catch (e: unknown) {
+    console.error(e);
+  }
 }
 
 async function aePlay(
@@ -219,7 +222,6 @@ async function aePlay(
   if (oldAe != null) stopAudio(oldAe);
 
   let ae: HTMLAudioElement | null = null;
-  let nextAe: HTMLAudioElement | null = null;
 
   try {
     ae = new Audio();
@@ -264,13 +266,20 @@ async function aePlay(
       mp3Src = appSettings.get().cloudfrontUrl!.replace('*', track.id!);
     }
 
-    nextAe = nextAudioElement.get();
+    let nextAe: HTMLAudioElement | null = nextAudioElement.get();
 
     if (nextAe != null && nextAe.src === mp3Src) {
       ae = nextAe;
     } else {
       ae.src = mp3Src;
     }
+
+    batch((): void => {
+      audioElement.set(ae);
+      nextAudioElement.set(null);
+    });
+
+    ae.load();
 
     ae.volume = import.meta.env.VITE_ENV === 'dev' ? 1 : 1;
 
@@ -317,26 +326,25 @@ async function aePlay(
       await ae.play();
     }
 
-    batch((): void => {
-      audioElement.set(ae);
-      duration.set(track.duration! / 1000);
-      markCheckFn.set(window.setInterval(() => void checkTrackDone(), 500));
-      nextAudioElement.set(null);
-      localStorage.setItem('playing-track-id', track.id!);
-    });
+    duration.set(track.duration! / 1000);
+    markCheckFn.set(window.setInterval(() => void checkTrackDone(), 500));
+    localStorage.setItem('playing-track-id', track.id!);
 
     notifyTrackPlay(track);
   } catch (e: unknown) {
+    console.log(e);
+    
     if (e instanceof Error) {
       logMessage(
         `Error starting play (attempt ${attemptNo}): ${e.message}`,
         'error'
       );
-    } else {
-      console.error(e);
     }
 
-    if (ae != null) ae.src = '';
+    if (ae != null) {
+      ae.removeAttribute('src');
+      ae.load();
+    }
 
     if (attemptNo < 8) {
       setTimeout(() => void aePlay(attemptNo + 1), 1000 * attemptNo);
