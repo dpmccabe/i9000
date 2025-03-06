@@ -12,7 +12,7 @@
     <ul id="player-buttons">
       <li>
         <button
-          class:available="{() => $playingTrack != null || $canPlayPrev}"
+          class:available="{() => $playingTrack != null}"
           on:click="{prevTrack}">
           <Fa icon="{faStepBackward}" fw size="2x" />
         </button>
@@ -20,7 +20,7 @@
 
       <li class="scrub-button">
         <button
-          class:available="{() => $playingTrack != null && $currentTime >= 3}"
+          class:available="{() => $playingTrack != null}"
           on:click="{() => scrubRelative(-3)}">
           <Fa icon="{faBackward}" fw />
         </button>
@@ -40,10 +40,7 @@
 
       <li class="scrub-button">
         <button
-          class:available="{() =>
-            $playingTrack != null &&
-            $currentTime != null &&
-            $currentTime + 3 <= $duration}"
+          class:available="{() => $playingTrack != null}"
           on:click="{() => scrubRelative(3)}">
           <Fa icon="{faForward}" fw />
         </button>
@@ -118,7 +115,6 @@ import {
 import Fa from 'svelte-fa/src/fa.svelte';
 import {
   canPlayNext,
-  canPlayPrev,
   currentTime,
   duration,
   formatDuration,
