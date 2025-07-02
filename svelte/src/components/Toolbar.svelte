@@ -270,6 +270,7 @@ import {
   activePane,
   authed,
   cacheSelectedOrPlaylist,
+  clearRecentlyPlayedTracks,
   clearTracksClipboard,
   commands,
   copyTracks,
@@ -351,16 +352,6 @@ async function shuffleCurrentPlaylist(): Promise<void> {
 async function interleaveCurrentPlaylist(): Promise<void> {
   try {
     await commands.int.handler('');
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      logMessage(e.message, 'error');
-    }
-  }
-}
-
-async function clearRecentlyPlayedTracks(): Promise<void> {
-  try {
-    await commands.cl.handler('');
   } catch (e: unknown) {
     if (e instanceof Error) {
       logMessage(e.message, 'error');

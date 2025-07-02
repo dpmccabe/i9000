@@ -234,12 +234,7 @@ export async function handleTrackSelection(
     prepSearchReplace();
   } else if (ev.key === 'g' && ev.metaKey) {
     prepThisThat();
-  } else if (
-    ev.ctrlKey &&
-    ev.key === 'Backspace' &&
-    currentPlaylist.get()?.name !== allPlaylistName &&
-    document.activeElement?.tagName !== 'INPUT'
-  ) {
+  } else if (ev.ctrlKey && ev.key === 'Backspace') {
     await clearRecentlyPlayedTracks();
   } else if (ev.key === 'Backspace' && !ev.metaKey && cutOrCopy.get() == null) {
     await removeSelectedTracks();

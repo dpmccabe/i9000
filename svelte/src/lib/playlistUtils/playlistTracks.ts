@@ -116,14 +116,17 @@ export async function trackMoveUpDown(dir: 'up' | 'down'): Promise<void> {
   await updatePlaylistTracks(currentPlaylist.get()!, reorderedTrackIds, true);
 }
 
-export async function clearRecentlyPlayedTracks(
-  playlist: Playlist | null = null
-): Promise<void> {
-  const thePlaylist: Playlist = playlist ?? playingPlaylist.get()!;
+export async function clearRecentlyPlayedTracks(): Promise<void> {
+  const pPlaylist: Playlist | null = playingPlaylist.get();
+  const curPlaylist: Playlist | undefined = currentPlaylist.get();
+
+  if (pPlaylist == null || curPlaylist == null || pPlaylist !== curPlaylist) {
+    return;
+  }
 
   if (
     [allPlaylistName, 'Unaccompanied', 'Learn', 'Import'].includes(
-      thePlaylist?.name
+      curPlaylist?.name
     )
   ) {
     return;
@@ -132,25 +135,19 @@ export async function clearRecentlyPlayedTracks(
   const tracks: Track[] = trackResults.get()!.results;
   const pTrack: Track | null = playingTrack.get();
 
-  // remove if played recently or is before playing track in playlist
+  if (pTrack == null) return;
+
+  // remove track if it's before playing track in playlist
   const playedTids: string[] = tracks.reduce(
     (acc: string[], t: Track): string[] => {
-      if (
-        (t.lastPlayed != null &&
-          -(t.lastPlayed as DateTime).diffNow().as('hours') < 12 &&
-          !(pTrack != null && pTrack.ix === t.ix)) ||
-        (pTrack != null && t.ix! < pTrack.ix!)
-      ) {
-        acc.push(t.id!);
-      }
-
+      if (t.ix! < pTrack.ix!) acc.push(t.id!);
       return acc;
     },
     []
   );
 
   if (playedTids.length > 0) {
-    await removeTracksFromPlaylist(thePlaylist.id, new Set(playedTids));
+    await removeTracksFromPlaylist(curPlaylist.id, new Set(playedTids));
   }
 }
 

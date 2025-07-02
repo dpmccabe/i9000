@@ -4,7 +4,6 @@ import {
   allPlaylistName,
   cacheSelectedOrPlaylist,
   clearMp3Cache,
-  clearRecentlyPlayedTracks,
   type Command,
   createPlaylist,
   createPlaylistFolder,
@@ -482,28 +481,7 @@ export const commands: Record<string, Command> = {
         );
       }
     },
-  },
-
-  cl: {
-    async handler(): Promise<void> {
-      const pPlaylist: Playlist | null = playingPlaylist.get();
-
-      if (pPlaylist == null) {
-        throw Error('Nothing is playing');
-      } else if (pPlaylist.name === allPlaylistName) {
-        throw Error('Can\'t clear recently played tracks from playlist "All"');
-      } else {
-        await clearRecentlyPlayedTracks(pPlaylist);
-        resetCommandBar();
-      }
-    },
-
-    hintTextBase: 'clear recently played tracks from playlist',
-
-    hinter(): void {
-      hintText.set(this.hintTextBase);
-    },
-  },
+  }
 };
 
 export function resetCommandBar(): void {
