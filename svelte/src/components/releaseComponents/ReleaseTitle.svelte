@@ -1,11 +1,11 @@
 <span>
+  <a href="#top" on:click|preventDefault="{copyReleaseToClipBoard}" class="copy"
+    ><Fa icon="{faCopy}" /></a>
+
   <a
     href="{['https://musicbrainz.org/release-group', release.id].join('/')}"
     target="_blank"
     rel="noreferrer">{release.title}</a>
-
-  <a href="#top" on:click|preventDefault="{copyReleaseToClipBoard}" class="copy"
-    ><Fa icon="{faCopy}" /></a>
 </span>
 
 <script lang="ts">
