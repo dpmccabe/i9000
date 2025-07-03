@@ -122,6 +122,7 @@ onDestroy((): void => {
       background-color: colors.$dark-gray;
       margin: 0;
       box-shadow: none;
+      align-self: auto;
     }
   }
 }
