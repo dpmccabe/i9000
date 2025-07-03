@@ -62,7 +62,7 @@
     </button>
 
     <button
-      disabled="{$playingTrack == null || $queuePosition[0] === 0}"
+      disabled="{$playingTrack == null || $queuePosition[0] === 0 || $currentPlaylist !== $playingPlaylist}"
       on:click|preventDefault="{() => clearRecentlyPlayedTracks()}">
       <Fa icon="{faBroom}" fw />
     </button>
@@ -281,6 +281,7 @@ import {
   logMessage,
   multiSelecting,
   pasteTracks,
+  playingPlaylist,
   playingTrack,
   prepEditTags,
   prompt,
