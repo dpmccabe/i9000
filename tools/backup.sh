@@ -25,6 +25,7 @@ PGPASSWORD=${DATABASE_PASSWORD} pg_dump ${DATABASE_NAME} \
 	--no-privileges \
 	--no-owner \
 	--format=custom \
+	 --exclude-schema=cron \
 	-f ${BACKUP_PATH}/database/$(date +"%Y-%m-%d").sql
 
 echo "Backing up prod database on S3..."
