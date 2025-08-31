@@ -38,3 +38,7 @@ ALTER TABLE mb_artist_relationships
     ADD CONSTRAINT mb_artist_relationships_unique UNIQUE (mb_artist_id, type, direction, other_mb_artist_id);
 
 END;
+
+GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON ALL TABLES IN SCHEMA public TO i9000_user;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO i9000_user;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO i9000_user;
