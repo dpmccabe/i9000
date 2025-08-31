@@ -87,9 +87,10 @@ function calcIdealGcrDurations(
   // genreCat-rating proportions and durations in final playlist
   const idealProps: GcrDuration[] = [];
   let sumIdealProps = 0;
+  let newProp: number;
 
   for (let i = 0; i < gcrTotalDurations.length; i++) {
-    const newProp: number = gcrTotalDurations[i].prop! * gcrMults[i].mult!;
+    newProp = gcrTotalDurations[i].prop! * gcrMults[i].mult!;
     sumIdealProps += newProp;
 
     idealProps.push({
@@ -126,8 +127,10 @@ function selectGcrTracks(
   );
 
   // filter out very recently played
+  let daysAgo: number;
+
   trackGroups = trackGroups.filter((tg: TrackGroup): boolean => {
-    const daysAgo: number = -(tg.lastPlayed as DateTime).diffNow().as('days');
+    daysAgo = -(tg.lastPlayed as DateTime).diffNow().as('days');
 
     return (
       (tg.nPlays >= 5 && daysAgo > 5) || (tg.nPlays < 5 && daysAgo > tg.nPlays)
@@ -276,10 +279,11 @@ export async function refreshRobotPlaylists(nHours: number): Promise<Playlist> {
 
   let accDuration = 0;
   let filling = 'M';
+  let trackIds: string[];
 
   // collect track IDs for robot playlists
   for (const tg of robotTrackGroups) {
-    const trackIds: string[] = tg.tracks.map((t: Track): string => t.id!);
+    trackIds = tg.tracks.map((t: Track): string => t.id!);
 
     robotIds[filling]['ids'] = robotIds[filling]['ids'].concat(trackIds);
     robotIds[filling]['genreIds'][tg.genreCat] =
