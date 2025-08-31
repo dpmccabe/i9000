@@ -20,21 +20,11 @@ class ApiConfig:
         app : FastAPI
         """
 
-        if os.getenv("ENV") == "prod":
-            # duplicate log issue on render.com
-            logger = logging.getLogger("uvicorn")
-            logger.removeHandler(logger.handlers[0])
-        else:
+        if os.getenv("ENV") != "prod":
             # get environment from local .env
             load_dotenv()
 
             import pandas as pd
-
-            # configure root logger to output to console
-            logging.basicConfig(
-                level=logging.INFO,
-                format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-            )
 
             # set Pandas options
             pd.set_option("display.max_columns", 30)

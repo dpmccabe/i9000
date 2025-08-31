@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import logging
 import os
 import time
 
@@ -18,6 +19,12 @@ from utils import tracks as track_utils
 from utils.api import ApiConfig, get_api_key
 from utils.cf_signed_url import make_signed_wildcard_url
 from utils.tracks import do_clean_tmp_mp3s_dir
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+
 
 app = FastAPI()
 config = ApiConfig(app)
