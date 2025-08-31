@@ -1,3 +1,4 @@
+import logging
 import os
 
 import boto3
@@ -23,15 +24,7 @@ class ApiConfig:
             # get environment from local .env
             load_dotenv()
 
-            import logging
-
             import pandas as pd
-
-            # configure root logger to output to console
-            logging.basicConfig(
-                level=logging.INFO,
-                format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-            )
 
             # set Pandas options
             pd.set_option("display.max_columns", 30)
@@ -43,6 +36,12 @@ class ApiConfig:
             pd.set_option("display.width", 200)
             pd.set_option("expand_frame_repr", True)
             pd.set_option("mode.chained_assignment", "warn")
+
+        # configure root logger
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        )
 
         # must identify this app to MusicBrainz API
         mb.set_useragent(
