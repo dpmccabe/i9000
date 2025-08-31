@@ -169,7 +169,7 @@ export interface RobotSettings {
   genreCats: Record<string, RobotGenreCat>;
   ratingMults: Record<string, number>;
   ungroupedTrackDurationLimit: number;
-  decayingCutsExp: number;
+  decayingCutsExp: Record<string, number>;
   excessHours: number;
 }
 

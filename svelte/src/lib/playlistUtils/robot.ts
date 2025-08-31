@@ -114,7 +114,11 @@ function calcIdealGcrDurations(
   return idealProps;
 }
 
-function selectGcrTracks(idur: GcrDuration, gcrTracks: Track[]): TrackGroup[] {
+function selectGcrTracks(
+  rating: number,
+  idur: GcrDuration,
+  gcrTracks: Track[]
+): TrackGroup[] {
   let trackGroups: TrackGroup[] = groupTracks(
     gcrTracks,
     idur.genreCat,
@@ -149,14 +153,15 @@ function selectGcrTracks(idur: GcrDuration, gcrTracks: Track[]): TrackGroup[] {
   let oldestPlayedTrackGroupInBin: TrackGroup;
   let currentCutIndex: number;
   let nBins = 0;
+  let cuts: number[];
 
   do {
     nBins++;
 
-    const cuts: number[] = Array.from(
+    cuts = Array.from(
       new Array(nBins - 1),
       (_: number, i: number): number =>
-        ((i + 1) / nBins) ** robotSettings.decayingCutsExp *
+        ((i + 1) / nBins) ** robotSettings.decayingCutsExp[rating.toString()] *
         (trackGroups.length - 1)
     );
 
@@ -217,6 +222,7 @@ async function collectRobotPool(nHours: number): Promise<TrackGroup[]> {
     ) {
       selectedTrackGroups.push(
         selectGcrTracks(
+          currentRating,
           idealDurations[currentIdurIx],
           gcrStatsAndTracks.tracks.slice(currentStartIx, i)
         )
@@ -233,6 +239,7 @@ async function collectRobotPool(nHours: number): Promise<TrackGroup[]> {
 
   selectedTrackGroups.push(
     selectGcrTracks(
+      currentRating,
       idealDurations[currentIdurIx],
       gcrStatsAndTracks.tracks.slice(currentStartIx)
     )
