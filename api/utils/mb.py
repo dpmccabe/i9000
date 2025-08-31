@@ -1,10 +1,12 @@
+from typing import Iterable
+
 import musicbrainzngs as mb
 import pandas as pd
 from fastapi.logger import logger
 from psycopg2._psycopg import cursor
 
 # release group types to save in DB (ignoring audiobooks, bootlegs, etc.)
-valid_rel_types = {
+valid_release_types = {
     "Album",
     "Compilation",
     "EP",
@@ -13,6 +15,15 @@ valid_rel_types = {
     "Demo",
     "Mixtape/Street",
     "Other",
+}
+
+valid_artist_rel_types = {
+    "member of band": "forward",  # i.e. only "is member of", not "members include"
+    "subgroup": None,  # either direcion
+    "artist rename": None,
+    "founder": "forward",
+    "collaboration": "forward",
+    "is person": None,
 }
 
 
@@ -143,7 +154,7 @@ def filter_new_releases(
         # release groups should have a type and optional secondary types
         types = {r["type"], *r["secondary_types"]}
 
-        if len(types) == 0 or not valid_rel_types.issuperset(types):
+        if len(types) == 0 or not valid_release_types.issuperset(types):
             # the release group only has types that aren't in the list of valid types
             continue
 
@@ -185,7 +196,7 @@ def insert_releases(cur: cursor, releases_df: pd.DataFrame) -> None:
     releases_sql = releases_sql.drop_duplicates(subset="mb_release_id")
     releases_sql["release_date"] = releases_sql["release_date"]
 
-    for i, r in releases_sql.iterrows():
+    for i, (_, r) in enumerate(releases_sql.iterrows()):
         logger.info(
             f"Inserting release {i + 1} of {len(releases_sql)}: "
             f"{r['title']} ({r['mb_release_id']})"
@@ -247,6 +258,176 @@ def insert_artist_releases(cur: cursor, releases_df: pd.DataFrame) -> None:
         )
 
 
+def get_mb_relationships(artist_id: str) -> list[dict[str, str]]:
+    """
+    get all of an artist's relationships in MusicBrainz
+
+    Parameters
+    ----------
+    artist_id : str
+        a MusicBrainz artist ID
+
+    Returns
+    -------
+    list[dict[str, str]]
+         a list of dictionaries containing artist relationship metadata
+    """
+
+    artist = mb.get_artist_by_id(artist_id, includes=["artist-rels"])
+
+    if "relations" not in artist:
+        return []
+
+    # subset to relationships to the kinds that are in the list of relevant ones
+    valid_rels = [
+        x
+        for x in artist["relations"]
+        if x["type"] in valid_artist_rel_types
+        and (
+            valid_artist_rel_types[x["type"]] is None
+            or valid_artist_rel_types[x["type"]] == x["direction"]
+        )
+    ]
+
+    logger.info(f"{len(valid_rels)} artist relationships")
+
+    return [
+        {
+            "mb_artist_id": artist_id,
+            "type": x["type"],
+            "direction": x["direction"],
+            "other_mb_artist_id": x["artist"]["id"],
+            "other_mb_artist_name": x["artist"]["name"],
+        }
+        for x in valid_rels
+    ]
+
+
+def get_existing_relationships(cur: cursor, artist_id: str) -> list[dict[str, str]]:
+    """
+    get the list of artist relationships already stored in database
+
+    Parameters
+    ----------
+    cur : cursor
+    artist_id : str
+        a MusicBrainz artist ID
+
+    Returns
+    -------
+    list[dict[str, str]]
+        the existing artist relationships
+    """
+
+    # get all of their previously stored relationships
+    cur.execute(
+        """
+            select
+               mb_artist_id,
+               type,
+               direction,
+               other_mb_artist_id
+           from
+               mb_artist_relationships
+           where
+               mb_artist_id = %s;
+        """,
+        (artist_id,),
+    )
+
+    existing_relationships = [
+        {
+            "mb_artist_id": x[0],
+            "type": x[1],
+            "direction": x[2],
+            "other_mb_artist_id": x[3],
+        }
+        for x in cur.fetchall()
+    ]
+
+    logger.info(f"{len(existing_relationships)} existing relationships")
+    return existing_relationships
+
+
+def filter_new_relationships(
+    relationships: list[dict[str, str]],
+    existing_relationships: list[dict[str, str]],
+) -> pd.DataFrame:
+    """
+    filter the artist relationships to those not already stored in database
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    pd.DataFrame
+        just the new artist relationships
+    """
+
+    rel_df = pd.DataFrame(relationships, dtype="string")
+
+    if len(existing_relationships) == 0:
+        new_relationships = rel_df
+    else:
+        existing_rel_df = pd.DataFrame(existing_relationships, dtype="string")
+
+        new_relationships = anti_join(
+            rel_df,
+            existing_rel_df,
+            on=["mb_artist_id", "type", "direction", "other_mb_artist_id"],
+        )
+
+    new_relationships = new_relationships.drop_duplicates()  # just in case
+
+    logger.info(f"{len(new_relationships)} new relationships")
+    return new_relationships
+
+
+def insert_relationships(cur: cursor, relationships_df: pd.DataFrame) -> None:
+    """
+    insert artist relationships into database
+
+    Parameters
+    ----------
+    cur : cursor
+    relationships_df : pd.DataFrame
+
+    Returns
+    -------
+    None
+    """
+
+    for i, (_, r) in enumerate(relationships_df.iterrows()):
+        logger.info(
+            f"Inserting relationship {i + 1} of {len(relationships_df)}: "
+            f"{r['type']} {r['other_mb_artist_name']} ({r['other_mb_artist_id']})"
+        )
+
+        cur.execute(
+            """
+            insert into mb_artist_relationships
+                (
+                    mb_artist_id,
+                    type,
+                    direction,
+                    other_mb_artist_id,
+                    other_mb_artist_name,
+                    created_at
+            ) values
+                (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                r["mb_artist_id"],
+                r["type"],
+                r["direction"],
+                r["other_mb_artist_id"],
+                r["other_mb_artist_name"],
+                dt_to_int(pd.to_datetime("now", utc=True)),
+            ),
+        )
+
+
 def checked_artist(cur: cursor, artist_id: str) -> None:
     """
     touch last_checked column in database so that this artist is put at the back of the
@@ -292,3 +473,42 @@ def dt_to_int(x: str | pd.Timestamp) -> int | None:
             return None
 
     return round(x.value / 1e6)
+
+
+def anti_join(
+    x: pd.DataFrame, y: pd.DataFrame, on: str | Iterable[str]
+) -> pd.DataFrame:
+    """
+    anti-join
+
+    Parameters
+    ----------
+    x : pd.DataFrame
+    y: pd.DataFrame
+    on: str | Iterable[str]
+        the columns to anti join on
+
+    Returns
+    -------
+    pd.DataFrame
+        a subsetted data frame
+
+    """
+
+    if len(y) == 0:
+        return x
+
+    # make a data frame of just the join columns
+    dummy = y.loc[:, on]  # pyright: ignore
+
+    # convert to data frame if `on` was a single column
+    if isinstance(dummy, pd.Series):
+        dummy = dummy.to_frame()
+
+    dummy.loc[:, "dummy_col"] = 1  # indicator variable
+
+    # attempt to join left data frame (`x`) to the dummy data frame
+    merged = x.merge(dummy, on=on, how="left")
+
+    # keep only the non-matches
+    return merged.loc[merged["dummy_col"].isna(), x.columns.tolist()]

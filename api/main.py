@@ -293,10 +293,26 @@ async def mb_check(_api_key: APIKey = Depends(get_api_key)) -> None:
                     artist_id, existing_release_ids, releases
                 )
 
-                # there are releases of interest not yet in DB, so store them
                 if len(new_releases) > 0:
+                    # there are releases of interest not in DB
                     mb_utils.insert_releases(cur, new_releases)
                     mb_utils.insert_artist_releases(cur, new_releases)
+
+            # check for new artist relationships (e.g. is a member of band X)
+            relationships = mb_utils.get_mb_relationships(artist_id)
+
+            if len(relationships) > 0:
+                # there are artist relationships in the MusicBrainz DB
+                existing_relationships = mb_utils.get_existing_relationships(
+                    cur, artist_id
+                )
+                new_relationships = mb_utils.filter_new_relationships(
+                    relationships, existing_relationships
+                )
+
+                if len(new_relationships) > 0:
+                    # there are artist relationships of interest not in DB
+                    mb_utils.insert_relationships(cur, new_relationships)
 
             # mark artist as checked (i.e. send to back of queue)
             mb_utils.checked_artist(cur, artist_id)

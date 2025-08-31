@@ -40,6 +40,40 @@ type Query {
     filter: AlbumFilter
   ): AlbumsConnection
 
+  """Reads and enables pagination through a set of `MbArtistRelationship`."""
+  mbArtistRelationships(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `MbArtistRelationship`."""
+    orderBy: [MbArtistRelationshipsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MbArtistRelationshipCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MbArtistRelationshipFilter
+  ): MbArtistRelationshipsConnection
+
   """Reads and enables pagination through a set of `MbArtistRelease`."""
   mbArtistReleases(
     """Only read the first `n` values of the set."""
@@ -448,6 +482,8 @@ type Query {
     filter: TrackFilter
   ): TracksConnection
   album(id: String!): Album
+  mbArtistRelationship(id: Int!): MbArtistRelationship
+  mbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistId(mbArtistId: UUID!, type: MbArtistRelationshipTypes!, direction: MbArtistRelationshipDirections!, otherMbArtistId: UUID!): MbArtistRelationship
   mbArtistRelease(mbArtistId: UUID!, mbReleaseId: UUID!): MbArtistRelease
   mbArtist(id: UUID!): MbArtist
   mbRelease(id: UUID!): MbRelease
@@ -1329,6 +1365,152 @@ input IntFilter {
   greaterThanOrEqualTo: Int
 }
 
+"""A connection to a list of `MbArtistRelationship` values."""
+type MbArtistRelationshipsConnection {
+  """A list of `MbArtistRelationship` objects."""
+  nodes: [MbArtistRelationship]!
+
+  """
+  A list of edges which contains the `MbArtistRelationship` and cursor to aid in pagination.
+  """
+  edges: [MbArtistRelationshipsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `MbArtistRelationship` you could get from the connection.
+  """
+  totalCount: Int!
+
+  """
+  Aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  aggregates: MbArtistRelationshipAggregates
+
+  """
+  Grouped aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  groupedAggregates(
+    """
+    The method to use when grouping `MbArtistRelationship` for these aggregates.
+    """
+    groupBy: [MbArtistRelationshipsGroupBy!]!
+
+    """Conditions on the grouped aggregates."""
+    having: MbArtistRelationshipsHavingInput
+  ): [MbArtistRelationshipAggregates!]
+}
+
+type MbArtistRelationship {
+  id: Int!
+  mbArtistId: UUID!
+  type: MbArtistRelationshipTypes!
+  direction: MbArtistRelationshipDirections!
+  otherMbArtistId: UUID!
+  otherMbArtistName: String!
+  acked: Boolean!
+  createdAt: BigInt!
+
+  """
+  Reads a single `MbArtist` that is related to this `MbArtistRelationship`.
+  """
+  mbArtist: MbArtist
+}
+
+"""
+A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122).
+"""
+scalar UUID
+
+enum MbArtistRelationshipTypes {
+  MEMBER_OF_BAND
+  SUBGROUP
+  ARTIST_RENAME
+  FOUNDER
+  COLLABORATION
+  IS_PERSON
+}
+
+enum MbArtistRelationshipDirections {
+  FORWARD
+  BACKWARD
+}
+
+type MbArtist {
+  id: UUID!
+  name: String!
+  lastChecked: BigInt
+
+  """Reads and enables pagination through a set of `MbArtistRelease`."""
+  mbArtistReleases(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `MbArtistRelease`."""
+    orderBy: [MbArtistReleasesOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MbArtistReleaseCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MbArtistReleaseFilter
+  ): MbArtistReleasesConnection!
+
+  """Reads and enables pagination through a set of `MbArtistRelationship`."""
+  mbArtistRelationships(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `MbArtistRelationship`."""
+    orderBy: [MbArtistRelationshipsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MbArtistRelationshipCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MbArtistRelationshipFilter
+  ): MbArtistRelationshipsConnection!
+}
+
 """A connection to a list of `MbArtistRelease` values."""
 type MbArtistReleasesConnection {
   """A list of `MbArtistRelease` objects."""
@@ -1377,15 +1559,13 @@ type MbArtistRelease {
   mbRelease: MbRelease
 }
 
-"""
-A universally unique identifier as defined by [RFC 4122](https://tools.ietf.org/html/rfc4122).
-"""
-scalar UUID
-
-type MbArtist {
+type MbRelease {
   id: UUID!
-  name: String!
-  lastChecked: BigInt
+  title: String!
+  types: [String]!
+  ackstate: MbAckstates!
+  releaseDate: BigInt
+  createdAt: BigInt!
 
   """Reads and enables pagination through a set of `MbArtistRelease`."""
   mbArtistReleases(
@@ -1420,6 +1600,12 @@ type MbArtist {
     """
     filter: MbArtistReleaseFilter
   ): MbArtistReleasesConnection!
+}
+
+enum MbAckstates {
+  NEW
+  TODO
+  ACKED
 }
 
 """Methods to use when ordering `MbArtistRelease`."""
@@ -1550,6 +1736,12 @@ input MbArtistFilter {
   """Some related `mbArtistReleases` exist."""
   mbArtistReleasesExist: Boolean
 
+  """Filter by the object’s `mbArtistRelationships` relation."""
+  mbArtistRelationships: MbArtistToManyMbArtistRelationshipFilter
+
+  """Some related `mbArtistRelationships` exist."""
+  mbArtistRelationshipsExist: Boolean
+
   """Checks for all expressions in this list."""
   and: [MbArtistFilter!]
 
@@ -1599,6 +1791,346 @@ input MbArtistReleaseAggregatesFilter {
 input MbArtistReleaseDistinctCountAggregateFilter {
   mbArtistId: BigIntFilter
   mbReleaseId: BigIntFilter
+}
+
+"""
+A filter to be used against many `MbArtistRelationship` object types. All fields are combined with a logical ‘and.’
+"""
+input MbArtistToManyMbArtistRelationshipFilter {
+  """
+  Every related `MbArtistRelationship` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MbArtistRelationshipFilter
+
+  """
+  Some related `MbArtistRelationship` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MbArtistRelationshipFilter
+
+  """
+  No related `MbArtistRelationship` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MbArtistRelationshipFilter
+
+  """
+  Aggregates across related `MbArtistRelationship` match the filter criteria.
+  """
+  aggregates: MbArtistRelationshipAggregatesFilter
+}
+
+"""
+A filter to be used against `MbArtistRelationship` object types. All fields are combined with a logical ‘and.’
+"""
+input MbArtistRelationshipFilter {
+  """Filter by the object’s `id` field."""
+  id: IntFilter
+
+  """Filter by the object’s `mbArtistId` field."""
+  mbArtistId: UUIDFilter
+
+  """Filter by the object’s `type` field."""
+  type: MbArtistRelationshipTypesFilter
+
+  """Filter by the object’s `direction` field."""
+  direction: MbArtistRelationshipDirectionsFilter
+
+  """Filter by the object’s `otherMbArtistId` field."""
+  otherMbArtistId: UUIDFilter
+
+  """Filter by the object’s `otherMbArtistName` field."""
+  otherMbArtistName: StringFilter
+
+  """Filter by the object’s `acked` field."""
+  acked: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: BigIntFilter
+
+  """Filter by the object’s `mbArtist` relation."""
+  mbArtist: MbArtistFilter
+
+  """Checks for all expressions in this list."""
+  and: [MbArtistRelationshipFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [MbArtistRelationshipFilter!]
+
+  """Negates the expression."""
+  not: MbArtistRelationshipFilter
+}
+
+"""
+A filter to be used against MbArtistRelationshipTypes fields. All fields are combined with a logical ‘and.’
+"""
+input MbArtistRelationshipTypesFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: MbArtistRelationshipTypes
+
+  """Not equal to the specified value."""
+  notEqualTo: MbArtistRelationshipTypes
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: MbArtistRelationshipTypes
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: MbArtistRelationshipTypes
+
+  """Included in the specified list."""
+  in: [MbArtistRelationshipTypes!]
+
+  """Not included in the specified list."""
+  notIn: [MbArtistRelationshipTypes!]
+
+  """Less than the specified value."""
+  lessThan: MbArtistRelationshipTypes
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: MbArtistRelationshipTypes
+
+  """Greater than the specified value."""
+  greaterThan: MbArtistRelationshipTypes
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: MbArtistRelationshipTypes
+}
+
+"""
+A filter to be used against MbArtistRelationshipDirections fields. All fields are combined with a logical ‘and.’
+"""
+input MbArtistRelationshipDirectionsFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: MbArtistRelationshipDirections
+
+  """Not equal to the specified value."""
+  notEqualTo: MbArtistRelationshipDirections
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: MbArtistRelationshipDirections
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: MbArtistRelationshipDirections
+
+  """Included in the specified list."""
+  in: [MbArtistRelationshipDirections!]
+
+  """Not included in the specified list."""
+  notIn: [MbArtistRelationshipDirections!]
+
+  """Less than the specified value."""
+  lessThan: MbArtistRelationshipDirections
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: MbArtistRelationshipDirections
+
+  """Greater than the specified value."""
+  greaterThan: MbArtistRelationshipDirections
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: MbArtistRelationshipDirections
+}
+
+"""
+A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
+"""
+input BooleanFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Boolean
+
+  """Not equal to the specified value."""
+  notEqualTo: Boolean
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Boolean
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Boolean
+
+  """Included in the specified list."""
+  in: [Boolean!]
+
+  """Not included in the specified list."""
+  notIn: [Boolean!]
+
+  """Less than the specified value."""
+  lessThan: Boolean
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Boolean
+
+  """Greater than the specified value."""
+  greaterThan: Boolean
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Boolean
+}
+
+"""
+A filter to be used against aggregates of `MbArtistRelationship` object types.
+"""
+input MbArtistRelationshipAggregatesFilter {
+  """
+  A filter that must pass for the relevant `MbArtistRelationship` object to be included within the aggregate.
+  """
+  filter: MbArtistRelationshipFilter
+
+  """Sum aggregate over matching `MbArtistRelationship` objects."""
+  sum: MbArtistRelationshipSumAggregateFilter
+
+  """Distinct count aggregate over matching `MbArtistRelationship` objects."""
+  distinctCount: MbArtistRelationshipDistinctCountAggregateFilter
+
+  """Minimum aggregate over matching `MbArtistRelationship` objects."""
+  min: MbArtistRelationshipMinAggregateFilter
+
+  """Maximum aggregate over matching `MbArtistRelationship` objects."""
+  max: MbArtistRelationshipMaxAggregateFilter
+
+  """Mean average aggregate over matching `MbArtistRelationship` objects."""
+  average: MbArtistRelationshipAverageAggregateFilter
+
+  """
+  Deciles (discrete) aggregate over matching `MbArtistRelationship` objects.
+  """
+  decilesDisc: MbArtistRelationshipDecilesDiscAggregateFilter
+
+  """
+  Sample standard deviation aggregate over matching `MbArtistRelationship` objects.
+  """
+  stddevSample: MbArtistRelationshipStddevSampleAggregateFilter
+
+  """
+  Population standard deviation aggregate over matching `MbArtistRelationship` objects.
+  """
+  stddevPopulation: MbArtistRelationshipStddevPopulationAggregateFilter
+
+  """
+  Sample variance aggregate over matching `MbArtistRelationship` objects.
+  """
+  varianceSample: MbArtistRelationshipVarianceSampleAggregateFilter
+
+  """
+  Population variance aggregate over matching `MbArtistRelationship` objects.
+  """
+  variancePopulation: MbArtistRelationshipVariancePopulationAggregateFilter
+}
+
+input MbArtistRelationshipSumAggregateFilter {
+  id: BigIntFilter
+  createdAt: BigFloatFilter
+}
+
+"""
+A filter to be used against BigFloat fields. All fields are combined with a logical ‘and.’
+"""
+input BigFloatFilter {
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Equal to the specified value."""
+  equalTo: BigFloat
+
+  """Not equal to the specified value."""
+  notEqualTo: BigFloat
+
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: BigFloat
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: BigFloat
+
+  """Included in the specified list."""
+  in: [BigFloat!]
+
+  """Not included in the specified list."""
+  notIn: [BigFloat!]
+
+  """Less than the specified value."""
+  lessThan: BigFloat
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: BigFloat
+
+  """Greater than the specified value."""
+  greaterThan: BigFloat
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: BigFloat
+}
+
+input MbArtistRelationshipDistinctCountAggregateFilter {
+  id: BigIntFilter
+  mbArtistId: BigIntFilter
+  type: BigIntFilter
+  direction: BigIntFilter
+  otherMbArtistId: BigIntFilter
+  otherMbArtistName: BigIntFilter
+  acked: BigIntFilter
+  createdAt: BigIntFilter
+}
+
+input MbArtistRelationshipMinAggregateFilter {
+  id: IntFilter
+  createdAt: BigIntFilter
+}
+
+input MbArtistRelationshipMaxAggregateFilter {
+  id: IntFilter
+  createdAt: BigIntFilter
+}
+
+input MbArtistRelationshipAverageAggregateFilter {
+  id: BigFloatFilter
+  createdAt: BigFloatFilter
+}
+
+input MbArtistRelationshipDecilesDiscAggregateFilter {
+  id: BigFloatFilter
+  createdAt: BigFloatFilter
+}
+
+input MbArtistRelationshipStddevSampleAggregateFilter {
+  id: BigFloatFilter
+  createdAt: BigFloatFilter
+}
+
+input MbArtistRelationshipStddevPopulationAggregateFilter {
+  id: BigFloatFilter
+  createdAt: BigFloatFilter
+}
+
+input MbArtistRelationshipVarianceSampleAggregateFilter {
+  id: BigFloatFilter
+  createdAt: BigFloatFilter
+}
+
+input MbArtistRelationshipVariancePopulationAggregateFilter {
+  id: BigFloatFilter
+  createdAt: BigFloatFilter
 }
 
 """
@@ -1744,12 +2276,6 @@ input MbAckstatesFilter {
   greaterThanOrEqualTo: MbAckstates
 }
 
-enum MbAckstates {
-  NEW
-  TODO
-  ACKED
-}
-
 """
 A filter to be used against many `MbArtistRelease` object types. All fields are combined with a logical ‘and.’
 """
@@ -1771,49 +2297,6 @@ input MbReleaseToManyMbArtistReleaseFilter {
 
   """Aggregates across related `MbArtistRelease` match the filter criteria."""
   aggregates: MbArtistReleaseAggregatesFilter
-}
-
-type MbRelease {
-  id: UUID!
-  title: String!
-  types: [String]!
-  ackstate: MbAckstates!
-  releaseDate: BigInt
-  createdAt: BigInt!
-
-  """Reads and enables pagination through a set of `MbArtistRelease`."""
-  mbArtistReleases(
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """The method to use when ordering `MbArtistRelease`."""
-    orderBy: [MbArtistReleasesOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MbArtistReleaseCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MbArtistReleaseFilter
-  ): MbArtistReleasesConnection!
 }
 
 """A `MbArtistRelease` edge in the connection."""
@@ -1852,6 +2335,307 @@ enum MbArtistReleasesGroupBy {
 input MbArtistReleasesHavingInput {
   AND: [MbArtistReleasesHavingInput!]
   OR: [MbArtistReleasesHavingInput!]
+}
+
+"""Methods to use when ordering `MbArtistRelationship`."""
+enum MbArtistRelationshipsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  MB_ARTIST_ID_ASC
+  MB_ARTIST_ID_DESC
+  TYPE_ASC
+  TYPE_DESC
+  DIRECTION_ASC
+  DIRECTION_DESC
+  OTHER_MB_ARTIST_ID_ASC
+  OTHER_MB_ARTIST_ID_DESC
+  OTHER_MB_ARTIST_NAME_ASC
+  OTHER_MB_ARTIST_NAME_DESC
+  ACKED_ASC
+  ACKED_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  MB_ARTIST_BY_MB_ARTIST_ID__ID_ASC
+  MB_ARTIST_BY_MB_ARTIST_ID__ID_DESC
+  MB_ARTIST_BY_MB_ARTIST_ID__NAME_ASC
+  MB_ARTIST_BY_MB_ARTIST_ID__NAME_DESC
+  MB_ARTIST_BY_MB_ARTIST_ID__LAST_CHECKED_ASC
+  MB_ARTIST_BY_MB_ARTIST_ID__LAST_CHECKED_DESC
+}
+
+"""
+A condition to be used against `MbArtistRelationship` object types. All fields
+are tested for equality and combined with a logical ‘and.’
+"""
+input MbArtistRelationshipCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: Int
+
+  """Checks for equality with the object’s `mbArtistId` field."""
+  mbArtistId: UUID
+
+  """Checks for equality with the object’s `type` field."""
+  type: MbArtistRelationshipTypes
+
+  """Checks for equality with the object’s `direction` field."""
+  direction: MbArtistRelationshipDirections
+
+  """Checks for equality with the object’s `otherMbArtistId` field."""
+  otherMbArtistId: UUID
+
+  """Checks for equality with the object’s `otherMbArtistName` field."""
+  otherMbArtistName: String
+
+  """Checks for equality with the object’s `acked` field."""
+  acked: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: BigInt
+}
+
+"""A `MbArtistRelationship` edge in the connection."""
+type MbArtistRelationshipsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `MbArtistRelationship` at the end of the edge."""
+  node: MbArtistRelationship
+}
+
+type MbArtistRelationshipAggregates {
+  keys: [String!]
+
+  """
+  Sum aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  sum: MbArtistRelationshipSumAggregates
+
+  """
+  Distinct count aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  distinctCount: MbArtistRelationshipDistinctCountAggregates
+
+  """
+  Minimum aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  min: MbArtistRelationshipMinAggregates
+
+  """
+  Maximum aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  max: MbArtistRelationshipMaxAggregates
+
+  """
+  Mean average aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  average: MbArtistRelationshipAverageAggregates
+
+  """
+  Deciles (discrete) aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  deciles_disc: MbArtistRelationshipDecilesDiscAggregates
+
+  """
+  Sample standard deviation aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  stddevSample: MbArtistRelationshipStddevSampleAggregates
+
+  """
+  Population standard deviation aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  stddevPopulation: MbArtistRelationshipStddevPopulationAggregates
+
+  """
+  Sample variance aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  varianceSample: MbArtistRelationshipVarianceSampleAggregates
+
+  """
+  Population variance aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  variancePopulation: MbArtistRelationshipVariancePopulationAggregates
+}
+
+type MbArtistRelationshipSumAggregates {
+  """Sum of id across the matching connection"""
+  id: BigInt!
+
+  """Sum of createdAt across the matching connection"""
+  createdAt: BigFloat!
+}
+
+type MbArtistRelationshipDistinctCountAggregates {
+  """Distinct count of id across the matching connection"""
+  id: BigInt
+
+  """Distinct count of mbArtistId across the matching connection"""
+  mbArtistId: BigInt
+
+  """Distinct count of type across the matching connection"""
+  type: BigInt
+
+  """Distinct count of direction across the matching connection"""
+  direction: BigInt
+
+  """Distinct count of otherMbArtistId across the matching connection"""
+  otherMbArtistId: BigInt
+
+  """Distinct count of otherMbArtistName across the matching connection"""
+  otherMbArtistName: BigInt
+
+  """Distinct count of acked across the matching connection"""
+  acked: BigInt
+
+  """Distinct count of createdAt across the matching connection"""
+  createdAt: BigInt
+}
+
+type MbArtistRelationshipMinAggregates {
+  """Minimum of id across the matching connection"""
+  id: Int
+
+  """Minimum of createdAt across the matching connection"""
+  createdAt: BigInt
+}
+
+type MbArtistRelationshipMaxAggregates {
+  """Maximum of id across the matching connection"""
+  id: Int
+
+  """Maximum of createdAt across the matching connection"""
+  createdAt: BigInt
+}
+
+type MbArtistRelationshipAverageAggregates {
+  """Mean average of id across the matching connection"""
+  id: BigFloat
+
+  """Mean average of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type MbArtistRelationshipDecilesDiscAggregates {
+  """Deciles (discrete) of id across the matching connection"""
+  id: BigFloat
+
+  """Deciles (discrete) of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type MbArtistRelationshipStddevSampleAggregates {
+  """Sample standard deviation of id across the matching connection"""
+  id: BigFloat
+
+  """Sample standard deviation of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type MbArtistRelationshipStddevPopulationAggregates {
+  """Population standard deviation of id across the matching connection"""
+  id: BigFloat
+
+  """
+  Population standard deviation of createdAt across the matching connection
+  """
+  createdAt: BigFloat
+}
+
+type MbArtistRelationshipVarianceSampleAggregates {
+  """Sample variance of id across the matching connection"""
+  id: BigFloat
+
+  """Sample variance of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type MbArtistRelationshipVariancePopulationAggregates {
+  """Population variance of id across the matching connection"""
+  id: BigFloat
+
+  """Population variance of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+"""
+Grouping methods for `MbArtistRelationship` for usage during aggregation.
+"""
+enum MbArtistRelationshipsGroupBy {
+  MB_ARTIST_ID
+  TYPE
+  DIRECTION
+  OTHER_MB_ARTIST_ID
+  OTHER_MB_ARTIST_NAME
+  ACKED
+  CREATED_AT
+}
+
+"""Conditions for `MbArtistRelationship` aggregates."""
+input MbArtistRelationshipsHavingInput {
+  AND: [MbArtistRelationshipsHavingInput!]
+  OR: [MbArtistRelationshipsHavingInput!]
+  sum: MbArtistRelationshipsHavingSumInput
+  distinctCount: MbArtistRelationshipsHavingDistinctCountInput
+  min: MbArtistRelationshipsHavingMinInput
+  max: MbArtistRelationshipsHavingMaxInput
+  average: MbArtistRelationshipsHavingAverageInput
+  deciles_disc: MbArtistRelationshipsHavingDecilesDiscInput
+  stddevSample: MbArtistRelationshipsHavingStddevSampleInput
+  stddevPopulation: MbArtistRelationshipsHavingStddevPopulationInput
+  varianceSample: MbArtistRelationshipsHavingVarianceSampleInput
+  variancePopulation: MbArtistRelationshipsHavingVariancePopulationInput
+}
+
+input MbArtistRelationshipsHavingSumInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingDistinctCountInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingMinInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingMaxInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingAverageInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingDecilesDiscInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingStddevSampleInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingStddevPopulationInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingVarianceSampleInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input MbArtistRelationshipsHavingVariancePopulationInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
 }
 
 """A connection to a list of `MbArtist` values."""
@@ -2085,6 +2869,8 @@ enum MbArtistsOrderBy {
   PRIMARY_KEY_DESC
   MB_ARTIST_RELEASES_BY_MB_ARTIST_ID__COUNT_ASC
   MB_ARTIST_RELEASES_BY_MB_ARTIST_ID__COUNT_DESC
+  MB_ARTIST_RELATIONSHIPS_BY_MB_ARTIST_ID__COUNT_ASC
+  MB_ARTIST_RELATIONSHIPS_BY_MB_ARTIST_ID__COUNT_DESC
   MB_ARTIST_RELEASES_COUNT_ASC
   MB_ARTIST_RELEASES_COUNT_DESC
   MB_ARTIST_RELEASES_SUM_MB_ARTIST_ID_ASC
@@ -2127,6 +2913,168 @@ enum MbArtistsOrderBy {
   MB_ARTIST_RELEASES_VARIANCE_POPULATION_MB_ARTIST_ID_DESC
   MB_ARTIST_RELEASES_VARIANCE_POPULATION_MB_RELEASE_ID_ASC
   MB_ARTIST_RELEASES_VARIANCE_POPULATION_MB_RELEASE_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_COUNT_ASC
+  MB_ARTIST_RELATIONSHIPS_COUNT_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_SUM_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_SUM_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_DISTINCT_COUNT_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_MIN_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_MIN_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_MAX_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_MAX_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_AVERAGE_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_DECILES_DISC_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_SAMPLE_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_STDDEV_POPULATION_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_SAMPLE_CREATED_AT_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_TYPE_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_TYPE_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_DIRECTION_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_DIRECTION_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_OTHER_MB_ARTIST_ID_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_OTHER_MB_ARTIST_ID_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_OTHER_MB_ARTIST_NAME_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_OTHER_MB_ARTIST_NAME_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_ACKED_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_ACKED_DESC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_CREATED_AT_ASC
+  MB_ARTIST_RELATIONSHIPS_VARIANCE_POPULATION_CREATED_AT_DESC
 }
 
 """
@@ -3040,48 +3988,6 @@ input PlaylistFilter {
 }
 
 """
-A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
-"""
-input BooleanFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: Boolean
-
-  """Not equal to the specified value."""
-  notEqualTo: Boolean
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: Boolean
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: Boolean
-
-  """Included in the specified list."""
-  in: [Boolean!]
-
-  """Not included in the specified list."""
-  notIn: [Boolean!]
-
-  """Less than the specified value."""
-  lessThan: Boolean
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: Boolean
-
-  """Greater than the specified value."""
-  greaterThan: Boolean
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: Boolean
-}
-
-"""
 A filter to be used against many `PlaylistTrack` object types. All fields are combined with a logical ‘and.’
 """
 input PlaylistToManyPlaylistTrackFilter {
@@ -3172,48 +4078,6 @@ input PlaylistTrackMaxAggregateFilter {
 input PlaylistTrackAverageAggregateFilter {
   playlistId: BigFloatFilter
   ix: BigFloatFilter
-}
-
-"""
-A filter to be used against BigFloat fields. All fields are combined with a logical ‘and.’
-"""
-input BigFloatFilter {
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Equal to the specified value."""
-  equalTo: BigFloat
-
-  """Not equal to the specified value."""
-  notEqualTo: BigFloat
-
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: BigFloat
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: BigFloat
-
-  """Included in the specified list."""
-  in: [BigFloat!]
-
-  """Not included in the specified list."""
-  notIn: [BigFloat!]
-
-  """Less than the specified value."""
-  lessThan: BigFloat
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: BigFloat
-
-  """Greater than the specified value."""
-  greaterThan: BigFloat
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: BigFloat
 }
 
 input PlaylistTrackDecilesDiscAggregateFilter {
@@ -8142,6 +9006,14 @@ input TrackCondition {
 The root mutation type which contains root level fields which mutate data.
 """
 type Mutation {
+  """Creates a single `MbArtistRelationship`."""
+  createMbArtistRelationship(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateMbArtistRelationshipInput!
+  ): CreateMbArtistRelationshipPayload
+
   """Creates a single `MbArtistRelease`."""
   createMbArtistRelease(
     """
@@ -8213,6 +9085,26 @@ type Mutation {
     """
     input: CreateTrackInput!
   ): CreateTrackPayload
+
+  """
+  Updates a single `MbArtistRelationship` using a unique key and a patch.
+  """
+  updateMbArtistRelationship(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateMbArtistRelationshipInput!
+  ): UpdateMbArtistRelationshipPayload
+
+  """
+  Updates a single `MbArtistRelationship` using a unique key and a patch.
+  """
+  updateMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistIdInput!
+  ): UpdateMbArtistRelationshipPayload
 
   """Updates a single `MbArtistRelease` using a unique key and a patch."""
   updateMbArtistRelease(
@@ -8303,6 +9195,22 @@ type Mutation {
     """
     input: UpdateTrackInput!
   ): UpdateTrackPayload
+
+  """Deletes a single `MbArtistRelationship` using a unique key."""
+  deleteMbArtistRelationship(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteMbArtistRelationshipInput!
+  ): DeleteMbArtistRelationshipPayload
+
+  """Deletes a single `MbArtistRelationship` using a unique key."""
+  deleteMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistIdInput!
+  ): DeleteMbArtistRelationshipPayload
 
   """Deletes a single `MbArtistRelease` using a unique key."""
   deleteMbArtistRelease(
@@ -8565,6 +9473,58 @@ type Mutation {
     """
     input: mnDeleteTrackInput!
   ): mnDeleteTrackPayload
+}
+
+"""The output of our create `MbArtistRelationship` mutation."""
+type CreateMbArtistRelationshipPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `MbArtistRelationship` that was created by this mutation."""
+  mbArtistRelationship: MbArtistRelationship
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """
+  Reads a single `MbArtist` that is related to this `MbArtistRelationship`.
+  """
+  mbArtist: MbArtist
+
+  """An edge for our `MbArtistRelationship`. May be used by Relay 1."""
+  mbArtistRelationshipEdge(
+    """The method to use when ordering `MbArtistRelationship`."""
+    orderBy: [MbArtistRelationshipsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): MbArtistRelationshipsEdge
+}
+
+"""All input for the create `MbArtistRelationship` mutation."""
+input CreateMbArtistRelationshipInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `MbArtistRelationship` to be created by this mutation."""
+  mbArtistRelationship: MbArtistRelationshipInput!
+}
+
+"""An input for mutations affecting `MbArtistRelationship`"""
+input MbArtistRelationshipInput {
+  id: Int
+  mbArtistId: UUID!
+  type: MbArtistRelationshipTypes!
+  direction: MbArtistRelationshipDirections!
+  otherMbArtistId: UUID!
+  otherMbArtistName: String!
+  acked: Boolean
+  createdAt: BigInt!
 }
 
 """The output of our create `MbArtistRelease` mutation."""
@@ -8998,6 +9958,83 @@ input TrackInput {
   ix: Int
   createdAt: BigInt!
   updatedAt: BigInt
+}
+
+"""The output of our update `MbArtistRelationship` mutation."""
+type UpdateMbArtistRelationshipPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `MbArtistRelationship` that was updated by this mutation."""
+  mbArtistRelationship: MbArtistRelationship
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """
+  Reads a single `MbArtist` that is related to this `MbArtistRelationship`.
+  """
+  mbArtist: MbArtist
+
+  """An edge for our `MbArtistRelationship`. May be used by Relay 1."""
+  mbArtistRelationshipEdge(
+    """The method to use when ordering `MbArtistRelationship`."""
+    orderBy: [MbArtistRelationshipsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): MbArtistRelationshipsEdge
+}
+
+"""All input for the `updateMbArtistRelationship` mutation."""
+input UpdateMbArtistRelationshipInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the `MbArtistRelationship` being updated.
+  """
+  patch: MbArtistRelationshipPatch!
+  id: Int!
+}
+
+"""
+Represents an update to a `MbArtistRelationship`. Fields that are set will be updated.
+"""
+input MbArtistRelationshipPatch {
+  id: Int
+  mbArtistId: UUID
+  type: MbArtistRelationshipTypes
+  direction: MbArtistRelationshipDirections
+  otherMbArtistId: UUID
+  otherMbArtistName: String
+  acked: Boolean
+  createdAt: BigInt
+}
+
+"""
+All input for the `updateMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistId` mutation.
+"""
+input UpdateMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  An object where the defined keys will be set on the `MbArtistRelationship` being updated.
+  """
+  patch: MbArtistRelationshipPatch!
+  mbArtistId: UUID!
+  type: MbArtistRelationshipTypes!
+  direction: MbArtistRelationshipDirections!
+  otherMbArtistId: UUID!
 }
 
 """The output of our update `MbArtistRelease` mutation."""
@@ -9508,6 +10545,60 @@ input TrackPatch {
   ix: Int
   createdAt: BigInt
   updatedAt: BigInt
+}
+
+"""The output of our delete `MbArtistRelationship` mutation."""
+type DeleteMbArtistRelationshipPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `MbArtistRelationship` that was deleted by this mutation."""
+  mbArtistRelationship: MbArtistRelationship
+  deletedMbArtistRelationshipNodeId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """
+  Reads a single `MbArtist` that is related to this `MbArtistRelationship`.
+  """
+  mbArtist: MbArtist
+
+  """An edge for our `MbArtistRelationship`. May be used by Relay 1."""
+  mbArtistRelationshipEdge(
+    """The method to use when ordering `MbArtistRelationship`."""
+    orderBy: [MbArtistRelationshipsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): MbArtistRelationshipsEdge
+}
+
+"""All input for the `deleteMbArtistRelationship` mutation."""
+input DeleteMbArtistRelationshipInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""
+All input for the `deleteMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistId` mutation.
+"""
+input DeleteMbArtistRelationshipByMbArtistIdAndTypeAndDirectionAndOtherMbArtistIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  mbArtistId: UUID!
+  type: MbArtistRelationshipTypes!
+  direction: MbArtistRelationshipDirections!
+  otherMbArtistId: UUID!
 }
 
 """The output of our delete `MbArtistRelease` mutation."""
