@@ -13,6 +13,7 @@ PGPASSWORD=${DATABASE_PASSWORD} pg_dump ${DATABASE_NAME} \
 	--no-privileges \
 	--no-owner \
 	--format=custom \
+	--exclude-schema=cron \
 	-f /tmp/i9000-$(date +"%Y-%m-%d").dump
 
 echo "Recreating local database..."
@@ -24,6 +25,7 @@ pg_restore \
 	--no-privileges \
 	--no-owner \
 	--format=custom \
+	--exclude-schema=cron \
 	--role=${LOCAL_DB_ROLE} \
 	-d ${LOCAL_DB_NAME} \
 	/tmp/i9000-$(date +"%Y-%m-%d").dump
