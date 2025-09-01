@@ -120,7 +120,7 @@ export class Relationship {
 
   constructor(rec: Record<string, any>) {
     this.id = rec.id;
-    this.artist = { id: rec.mbArtistId, name: rec.artist };
+    this.artist = { id: rec.artistId, name: rec.artist };
     this.type = rec.type;
     this.direction = rec.direction;
     this.otherArtist = { id: rec.otherArtistId, name: rec.otherArtist };
