@@ -67,8 +67,6 @@
   {/if}
 {/if}
 
-<svelte:window on:keydown="{keyDown}" />
-
 <script lang="ts">
 import { onMount, tick } from 'svelte';
 import { slide } from 'svelte/transition';
@@ -99,7 +97,7 @@ export let tabId: string;
 export let onMountFn: undefined | (() => void) = undefined;
 export let getNextResultsBatch: () => Promise<void>;
 export let settings:
-  | TabSettings<AlbumSettings | ReleaseSettings | RelationshipSettings | TrackSettings>
+  | AlbumSettings | ReleaseSettings | RelationshipSettings | TrackSettings
   | undefined;
 export let results: TabResults<Album | Release | Relationship | Track> | undefined = undefined;
 export let fields: Record<string, TabField>;
@@ -122,13 +120,6 @@ $: {
 onMount((): void => {
   if (onMountFn != null) onMountFn();
 });
-
-function keyDown(ev: KeyboardEvent): void {
-  if (ev.key === 'f' && document.activeElement?.tagName !== 'INPUT') {
-    activePane.set('tab-filters');
-    ev.preventDefault();
-  }
-}
 
 function thCssClass(fieldName: string, sortBy: TabSort): string {
   return [

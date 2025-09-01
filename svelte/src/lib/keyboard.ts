@@ -361,6 +361,8 @@ export async function handlePaneSelection(ev: KeyboardEvent): Promise<boolean> {
       activePane.set('command-bar');
     } else if (ev.key === '?') {
       activePane.set('help');
+    } else if (ev.key === 'f') {
+      activePane.set('tab-filters');
     } else {
       return false;
     }

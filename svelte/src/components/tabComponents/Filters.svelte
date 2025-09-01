@@ -10,7 +10,7 @@
           <TypingWaiter
             leftIcon="{faSearch}"
             waitTime="{200}"
-            text="{settings.filters.get('global')?.text}"
+            text="{settings.filters.get('global')?.text || ''}"
             on:textUpdated="{(e) => {
               if (e.detail === '') {
                 settings.filters.delete('global');
@@ -39,7 +39,7 @@
               <TypingWaiter
                 leftIcon="{faSearch}"
                 waitTime="{200}"
-                text="{settings.filters.get(field)?.text}"
+                text="{settings.filters.get(field)?.text || ''}"
                 on:textUpdated="{(e) => {
                   if (e.detail === '') {
                     settings.filters.delete(field);
@@ -103,9 +103,9 @@ import TypingWaiter from '../TypingWaiter.svelte';
 import AggFilter from './AggFilter.svelte';
 import RangeFilter from './RangeFilter.svelte';
 
-export let settings: TabSettings<
+export let settings:
   AlbumSettings | ReleaseSettings | RelationshipSettings | TrackSettings
->;
+;
 export let fields: Record<string, TabField>;
 export let tabId: string;
 

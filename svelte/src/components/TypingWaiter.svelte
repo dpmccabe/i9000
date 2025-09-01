@@ -49,10 +49,6 @@ const dispatch: <EventKey extends Extract<keyof any, string>>(
   options?: DispatchOptions
 ) => boolean = createEventDispatcher();
 
-export function focus(): void {
-  textInput.focus();
-}
-
 function extendTimeout(ev: KeyboardEvent): void {
   if (ev.key === 'Enter') {
     updateText();
