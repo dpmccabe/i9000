@@ -50,6 +50,8 @@ async function doCreateMbArtist(relationship: Relationship): Promise<void> {
     relationship.otherArtist.name
   );
 
+  await ackRelationship(relationship.id, true);
+
   relationshipSettings.touch();
 }
 </script>

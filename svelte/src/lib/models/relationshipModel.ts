@@ -28,7 +28,7 @@ export type RelationshipDirection = 'forward' | 'backward';
 
 export const relationshipFields: Record<string, TabField> = {
   artist: {
-    dbCols: ['artist'],
+    dbCols: ['artist', 'artistId'],
     displayed: true,
     mobileDisplayed: true,
     displayName: 'Artist',
@@ -67,7 +67,7 @@ export const relationshipFields: Record<string, TabField> = {
     isEnum: true,
   },
   otherArtist: {
-    dbCols: ['otherArtist'],
+    dbCols: ['otherArtist', 'otherArtistId'],
     displayed: true,
     mobileDisplayed: true,
     displayName: 'Other artist',
@@ -123,7 +123,7 @@ export class Relationship {
     this.artist = { id: rec.mbArtistId, name: rec.artist };
     this.type = rec.type;
     this.direction = rec.direction;
-    this.otherArtist = { id: rec.otherMbArtistId, name: rec.otherArtist };
+    this.otherArtist = { id: rec.otherArtistId, name: rec.otherArtist };
     this.acked = rec.acked;
     this.createdAt = DateTime.fromMillis(Number(BigInt(rec.createdAt)), {
       zone: 'UTC',
