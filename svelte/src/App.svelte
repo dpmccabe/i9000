@@ -27,6 +27,8 @@
             <Plays />
           {:else if $view === 'releases'}
             <Releases />
+          {:else if $view === 'relationships'}
+            <Relationships />
           {:else}
             <Tracks />
           {/if}
@@ -92,6 +94,7 @@ import Prompt from './components/modalComponents/Prompt.svelte';
 import Player from './components/playerComponents/Player.svelte';
 import PlayQueue from './components/playerComponents/PlayQueue.svelte';
 import Releases from './components/releaseComponents/Releases.svelte';
+import Relationships from './components/relationshipComponents/Relationships.svelte';
 import ColSelector from './components/sidebarComponents/ColSelector.svelte';
 import OrganizedPlaylists from './components/sidebarComponents/OrganizedPlaylists.svelte';
 import PlaylistSelector from './components/sidebarComponents/PlaylistSelector.svelte';

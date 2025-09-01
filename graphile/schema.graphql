@@ -380,6 +380,40 @@ type Query {
     filter: PlayFilter
   ): PlaysConnection
 
+  """Reads and enables pagination through a set of `Relationship`."""
+  relationships(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `Relationship`."""
+    orderBy: [RelationshipsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RelationshipCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RelationshipFilter
+  ): RelationshipsConnection
+
   """Reads and enables pagination through a set of `Release`."""
   releases(
     """Only read the first `n` values of the set."""
@@ -494,6 +528,7 @@ type Query {
   playlist(id: Int!): Playlist
   playlistByName(name: String!): Playlist
   play(id: Int!): Play
+  relationship(id: Int!): Relationship
   release(id: UUID!): Release
   track(id: String!): Track
 
@@ -6907,6 +6942,395 @@ input PlaylistStatFilter {
 
   """Negates the expression."""
   not: PlaylistStatFilter
+}
+
+"""A connection to a list of `Relationship` values."""
+type RelationshipsConnection {
+  """A list of `Relationship` objects."""
+  nodes: [Relationship]!
+
+  """
+  A list of edges which contains the `Relationship` and cursor to aid in pagination.
+  """
+  edges: [RelationshipsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Relationship` you could get from the connection."""
+  totalCount: Int!
+
+  """
+  Aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  aggregates: RelationshipAggregates
+
+  """
+  Grouped aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  groupedAggregates(
+    """The method to use when grouping `Relationship` for these aggregates."""
+    groupBy: [RelationshipsGroupBy!]!
+
+    """Conditions on the grouped aggregates."""
+    having: RelationshipsHavingInput
+  ): [RelationshipAggregates!]
+}
+
+type Relationship {
+  id: Int!
+  artistId: UUID
+  artist: String
+  type: MbArtistRelationshipTypes
+  direction: MbArtistRelationshipDirections
+  otherArtistId: UUID
+  otherArtist: String
+  acked: Boolean
+  createdAt: BigInt
+}
+
+"""A `Relationship` edge in the connection."""
+type RelationshipsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Relationship` at the end of the edge."""
+  node: Relationship
+}
+
+type RelationshipAggregates {
+  keys: [String!]
+
+  """
+  Sum aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  sum: RelationshipSumAggregates
+
+  """
+  Distinct count aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  distinctCount: RelationshipDistinctCountAggregates
+
+  """
+  Minimum aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  min: RelationshipMinAggregates
+
+  """
+  Maximum aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  max: RelationshipMaxAggregates
+
+  """
+  Mean average aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  average: RelationshipAverageAggregates
+
+  """
+  Deciles (discrete) aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  deciles_disc: RelationshipDecilesDiscAggregates
+
+  """
+  Sample standard deviation aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  stddevSample: RelationshipStddevSampleAggregates
+
+  """
+  Population standard deviation aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  stddevPopulation: RelationshipStddevPopulationAggregates
+
+  """
+  Sample variance aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  varianceSample: RelationshipVarianceSampleAggregates
+
+  """
+  Population variance aggregates across the matching connection (ignoring before/after/first/last/offset)
+  """
+  variancePopulation: RelationshipVariancePopulationAggregates
+}
+
+type RelationshipSumAggregates {
+  """Sum of id across the matching connection"""
+  id: BigInt!
+
+  """Sum of createdAt across the matching connection"""
+  createdAt: BigFloat!
+}
+
+type RelationshipDistinctCountAggregates {
+  """Distinct count of id across the matching connection"""
+  id: BigInt
+
+  """Distinct count of artistId across the matching connection"""
+  artistId: BigInt
+
+  """Distinct count of artist across the matching connection"""
+  artist: BigInt
+
+  """Distinct count of type across the matching connection"""
+  type: BigInt
+
+  """Distinct count of direction across the matching connection"""
+  direction: BigInt
+
+  """Distinct count of otherArtistId across the matching connection"""
+  otherArtistId: BigInt
+
+  """Distinct count of otherArtist across the matching connection"""
+  otherArtist: BigInt
+
+  """Distinct count of acked across the matching connection"""
+  acked: BigInt
+
+  """Distinct count of createdAt across the matching connection"""
+  createdAt: BigInt
+}
+
+type RelationshipMinAggregates {
+  """Minimum of id across the matching connection"""
+  id: Int
+
+  """Minimum of createdAt across the matching connection"""
+  createdAt: BigInt
+}
+
+type RelationshipMaxAggregates {
+  """Maximum of id across the matching connection"""
+  id: Int
+
+  """Maximum of createdAt across the matching connection"""
+  createdAt: BigInt
+}
+
+type RelationshipAverageAggregates {
+  """Mean average of id across the matching connection"""
+  id: BigFloat
+
+  """Mean average of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type RelationshipDecilesDiscAggregates {
+  """Deciles (discrete) of id across the matching connection"""
+  id: BigFloat
+
+  """Deciles (discrete) of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type RelationshipStddevSampleAggregates {
+  """Sample standard deviation of id across the matching connection"""
+  id: BigFloat
+
+  """Sample standard deviation of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type RelationshipStddevPopulationAggregates {
+  """Population standard deviation of id across the matching connection"""
+  id: BigFloat
+
+  """
+  Population standard deviation of createdAt across the matching connection
+  """
+  createdAt: BigFloat
+}
+
+type RelationshipVarianceSampleAggregates {
+  """Sample variance of id across the matching connection"""
+  id: BigFloat
+
+  """Sample variance of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+type RelationshipVariancePopulationAggregates {
+  """Population variance of id across the matching connection"""
+  id: BigFloat
+
+  """Population variance of createdAt across the matching connection"""
+  createdAt: BigFloat
+}
+
+"""Grouping methods for `Relationship` for usage during aggregation."""
+enum RelationshipsGroupBy {
+  ID
+  ARTIST_ID
+  ARTIST
+  TYPE
+  DIRECTION
+  OTHER_ARTIST_ID
+  OTHER_ARTIST
+  ACKED
+  CREATED_AT
+}
+
+"""Conditions for `Relationship` aggregates."""
+input RelationshipsHavingInput {
+  AND: [RelationshipsHavingInput!]
+  OR: [RelationshipsHavingInput!]
+  sum: RelationshipsHavingSumInput
+  distinctCount: RelationshipsHavingDistinctCountInput
+  min: RelationshipsHavingMinInput
+  max: RelationshipsHavingMaxInput
+  average: RelationshipsHavingAverageInput
+  deciles_disc: RelationshipsHavingDecilesDiscInput
+  stddevSample: RelationshipsHavingStddevSampleInput
+  stddevPopulation: RelationshipsHavingStddevPopulationInput
+  varianceSample: RelationshipsHavingVarianceSampleInput
+  variancePopulation: RelationshipsHavingVariancePopulationInput
+}
+
+input RelationshipsHavingSumInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingDistinctCountInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingMinInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingMaxInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingAverageInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingDecilesDiscInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingStddevSampleInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingStddevPopulationInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingVarianceSampleInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+input RelationshipsHavingVariancePopulationInput {
+  id: HavingIntFilter
+  createdAt: HavingBigintFilter
+}
+
+"""Methods to use when ordering `Relationship`."""
+enum RelationshipsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  ARTIST_ID_ASC
+  ARTIST_ID_DESC
+  ARTIST_ASC
+  ARTIST_DESC
+  TYPE_ASC
+  TYPE_DESC
+  DIRECTION_ASC
+  DIRECTION_DESC
+  OTHER_ARTIST_ID_ASC
+  OTHER_ARTIST_ID_DESC
+  OTHER_ARTIST_ASC
+  OTHER_ARTIST_DESC
+  ACKED_ASC
+  ACKED_DESC
+  CREATED_AT_ASC
+  CREATED_AT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+}
+
+"""
+A condition to be used against `Relationship` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input RelationshipCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: Int
+
+  """Checks for equality with the object’s `artistId` field."""
+  artistId: UUID
+
+  """Checks for equality with the object’s `artist` field."""
+  artist: String
+
+  """Checks for equality with the object’s `type` field."""
+  type: MbArtistRelationshipTypes
+
+  """Checks for equality with the object’s `direction` field."""
+  direction: MbArtistRelationshipDirections
+
+  """Checks for equality with the object’s `otherArtistId` field."""
+  otherArtistId: UUID
+
+  """Checks for equality with the object’s `otherArtist` field."""
+  otherArtist: String
+
+  """Checks for equality with the object’s `acked` field."""
+  acked: Boolean
+
+  """Checks for equality with the object’s `createdAt` field."""
+  createdAt: BigInt
+}
+
+"""
+A filter to be used against `Relationship` object types. All fields are combined with a logical ‘and.’
+"""
+input RelationshipFilter {
+  """Filter by the object’s `id` field."""
+  id: IntFilter
+
+  """Filter by the object’s `artistId` field."""
+  artistId: UUIDFilter
+
+  """Filter by the object’s `artist` field."""
+  artist: StringFilter
+
+  """Filter by the object’s `type` field."""
+  type: MbArtistRelationshipTypesFilter
+
+  """Filter by the object’s `direction` field."""
+  direction: MbArtistRelationshipDirectionsFilter
+
+  """Filter by the object’s `otherArtistId` field."""
+  otherArtistId: UUIDFilter
+
+  """Filter by the object’s `otherArtist` field."""
+  otherArtist: StringFilter
+
+  """Filter by the object’s `acked` field."""
+  acked: BooleanFilter
+
+  """Filter by the object’s `createdAt` field."""
+  createdAt: BigIntFilter
+
+  """Checks for all expressions in this list."""
+  and: [RelationshipFilter!]
+
+  """Checks for any expressions in this list."""
+  or: [RelationshipFilter!]
+
+  """Negates the expression."""
+  not: RelationshipFilter
 }
 
 """A connection to a list of `Release` values."""

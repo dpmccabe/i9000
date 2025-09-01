@@ -93,6 +93,7 @@ import {
   type AlbumSettings,
   camelToKebabCase,
   type ReleaseSettings,
+  type RelationshipSettings,
   type TabField,
   type TabSettings,
   type TrackSettings,
@@ -103,7 +104,7 @@ import AggFilter from './AggFilter.svelte';
 import RangeFilter from './RangeFilter.svelte';
 
 export let settings: TabSettings<
-  AlbumSettings | ReleaseSettings | TrackSettings
+  AlbumSettings | ReleaseSettings | RelationshipSettings | TrackSettings
 >;
 export let fields: Record<string, TabField>;
 export let tabId: string;

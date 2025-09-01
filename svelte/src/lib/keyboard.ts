@@ -1,11 +1,9 @@
 import {
   activePane,
-  allPlaylistName,
   authed,
   clearRecentlyPlayedTracks,
   clearTracksClipboard,
   copyTracks,
-  currentPlaylist,
   cutOrCopy,
   cutTracks,
   deleteSelectedTracks,
@@ -49,6 +47,7 @@ import {
   undoPlaylistTracksUpdate,
   viewAlbums,
   viewReleases,
+  viewRelationships,
 } from '../internal';
 
 export function keyUp(ev: KeyboardEvent): void {
@@ -343,6 +342,8 @@ export async function handlePaneSelection(ev: KeyboardEvent): Promise<boolean> {
       await viewAlbums();
     } else if (ev.key === 'r' && !ev.metaKey) {
       await viewReleases();
+    } else if (ev.key === 'e') {
+      await viewRelationships();
     } else if (ev.key === 'i') {
       ev.preventDefault();
       activePane.set('import-queue');

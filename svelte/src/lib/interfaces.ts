@@ -104,7 +104,12 @@ export type Pane =
   | 'tracks'
   | 'tab-filters';
 
-export type TrackView = 'tracks' | 'albums' | 'plays' | 'releases';
+export type TrackView =
+  | 'tracks'
+  | 'albums'
+  | 'plays'
+  | 'releases'
+  | 'relationships';
 
 export type MessageType = 'error' | 'info' | 'success';
 
@@ -228,3 +233,8 @@ export interface GroupedAggregate {
 }
 
 export type Indexable = Record<string, never>;
+
+export interface Artist {
+  id: string;
+  name: string;
+}

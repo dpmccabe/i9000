@@ -9,6 +9,7 @@
 */
 import { DateTime } from 'luxon';
 import {
+  type Artist,
   db,
   formatDate,
   nNewReleases,
@@ -17,11 +18,6 @@ import {
 } from '../../internal';
 
 export type Ackstate = 'new' | 'todo' | 'acked';
-
-export interface Artist {
-  id: string;
-  name: string;
-}
 
 export const releaseFields: Record<string, TabField> = {
   ackstate: {

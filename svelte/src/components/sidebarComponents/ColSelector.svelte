@@ -58,19 +58,28 @@ import {
   releaseSettings,
   type TrackSettings,
   trackSettings,
+  type RelationshipSettings,
+  relationshipSettings,
   view,
 } from '../../internal';
 import { type Writable } from '../../lib/tansuStore';
 import Modal from '../modalComponents/Modal.svelte';
 
 export let tabSettings: Writable<
-  AlbumSettings | ReleaseSettings | PlaySettings | TrackSettings | undefined
+  | AlbumSettings
+  | ReleaseSettings
+  | RelationshipSettings
+  | PlaySettings
+  | TrackSettings
+  | undefined
 >;
 
 $: if ($view === 'albums') {
   tabSettings = albumSettings;
 } else if ($view === 'releases') {
   tabSettings = releaseSettings;
+} else if ($view === 'relationships') {
+  tabSettings = relationshipSettings;
 } else if ($view === 'plays') {
   tabSettings = playSettings;
 } else if ($view === 'tracks') {

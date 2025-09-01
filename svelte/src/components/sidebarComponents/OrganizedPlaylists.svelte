@@ -31,6 +31,18 @@
       </button>
     </li>
 
+    <li class="top-level">
+      <button
+        on:click|preventDefault="{() => viewRelationships()}"
+        class:active="{$view === 'relationships'}">
+        <Fa icon="{faRss}" fw />
+        Relationships
+        {#if $nNewRelationships != null}
+          <span>{$nNewRelationships}</span>
+        {/if}
+      </button>
+    </li>
+
     <fieldset>
       <legend>Unsorted</legend>
 
@@ -80,8 +92,11 @@ import {
   view,
   viewAlbums,
   viewPlays,
-  viewReleases
-} from "../../internal";
+  viewRelationships,
+  nNewRelationships,
+  viewReleases,
+  getNNewRelationships,
+} from '../../internal';
 import SidebarPlaylist from './SidebarPlaylist.svelte';
 
 let playlistFolderExpanded: Record<number, boolean>;
@@ -96,16 +111,22 @@ $: playlistFolderExpanded = Object.fromEntries(
 );
 
 onMount(async (): Promise<void> => {
-  window.setTimeout(setNNewReleases, 1000);
-  nNewReleasesUpdater ||= window.setInterval(setNNewReleases, 60 * 60 * 1000);
+  window.setTimeout(setNNewReleasesAndRelationships, 1000);
+  nNewReleasesUpdater ||= window.setInterval(
+    setNNewReleasesAndRelationships,
+    60 * 60 * 1000
+  );
 });
 
 onDestroy((): void => {
   if (nNewReleasesUpdater != null) window.clearInterval(nNewReleasesUpdater);
 });
 
-async function setNNewReleases(): Promise<void> {
-  if (DB.online) nNewReleases.set(await getNNewReleases())
+async function setNNewReleasesAndRelationships(): Promise<void> {
+  if (DB.online) {
+    nNewReleases.set(await getNNewReleases());
+    nNewRelationships.set(await getNNewRelationships());
+  }
 }
 </script>
 

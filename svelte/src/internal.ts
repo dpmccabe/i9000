@@ -6,6 +6,7 @@ export * from './lib/db';
 export * from './lib/tab';
 
 export * from './lib/models/albumModel';
+export * from './lib/models/relationshipModel';
 export * from './lib/models/releaseModel';
 export * from './lib/models/playlistFolderModel';
 export * from './lib/models/playlistModel';
@@ -19,6 +20,7 @@ export * from './lib/stores/trackStores';
 export * from './lib/stores/playStores';
 export * from './lib/stores/playlistStores';
 export * from './lib/stores/playerStores';
+export * from './lib/stores/relationshipStores';
 export * from './lib/stores/releaseStores';
 
 export * from './lib/trackUtils/trackSelection';
@@ -36,6 +38,7 @@ export * from './lib/playlistUtils/interleave';
 
 export * from './lib/albumUtils';
 export * from './lib/playUtils';
+export * from './lib/relationshipUtils';
 export * from './lib/releaseUtils';
 export * from './lib/trackUtils/trackUtils';
 export * from './lib/auth';

@@ -82,6 +82,8 @@ import {
   narrow,
   type Release,
   type ReleaseSettings,
+  type Relationship,
+  type RelationshipSettings,
   statsContent,
   type TabField,
   type TabResults,
@@ -97,9 +99,9 @@ export let tabId: string;
 export let onMountFn: undefined | (() => void) = undefined;
 export let getNextResultsBatch: () => Promise<void>;
 export let settings:
-  | TabSettings<AlbumSettings | ReleaseSettings | TrackSettings>
+  | TabSettings<AlbumSettings | ReleaseSettings | RelationshipSettings | TrackSettings>
   | undefined;
-export let results: TabResults<Album | Release | Track> | undefined = undefined;
+export let results: TabResults<Album | Release | Relationship | Track> | undefined = undefined;
 export let fields: Record<string, TabField>;
 export let rowComponent: Component;
 let loadingEl: HTMLElement;

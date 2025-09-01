@@ -19,6 +19,15 @@ export async function viewReleases(): Promise<void> {
   document.getElementById('releases')?.focus();
 }
 
+export async function viewRelationships(): Promise<void> {
+  document.getElementById('view')!.scrollTop = 0;
+  history.pushState('', '', '#relationships');
+  view.set('relationships');
+  await tick();
+  activePane.set('main');
+  document.getElementById('relationships')?.focus();
+}
+
 export async function viewPlays(): Promise<void> {
   document.getElementById('view')!.scrollTop = 0;
   history.pushState('', '', '#plays');

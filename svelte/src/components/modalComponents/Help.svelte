@@ -25,6 +25,9 @@
             <dt>r</dt>
             <dd>releases</dd>
 
+            <dt>e</dt>
+            <dd>relationships</dd>
+
             <dt>/</dt>
             <dd>command bar</dd>
 

@@ -92,6 +92,8 @@ export async function postAuthSetup(): Promise<void> {
 
   if (window.location.hash.substring(1) === 'releases') {
     view.set('releases');
+  } else if (window.location.hash.substring(1) === 'relationships') {
+    view.set('relationships');
   } else if (window.location.hash.substring(1) === 'albums') {
     view.set('albums');
   } else if (window.location.hash.substring(1) === 'plays') {
