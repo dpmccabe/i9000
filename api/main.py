@@ -12,6 +12,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.logger import logger
 from fastapi.openapi.models import APIKey
 from fastapi.responses import JSONResponse
+from mangum import Mangum
 
 from utils import mb as mb_utils
 from utils import schemas
@@ -28,6 +29,7 @@ logging.basicConfig(
 
 app = FastAPI()
 config = ApiConfig(app)
+handler = Mangum(app)
 
 
 @app.get("/")
