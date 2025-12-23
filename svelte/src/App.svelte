@@ -131,7 +131,7 @@ const toastOptions = {
 let innerWidth: number = window.innerWidth;
 let innerHeight: number = window.innerHeight;
 
-$: narrow.set(innerWidth <= 1300);
+$: narrow.set(innerWidth <= 1275);
 $: short.set(innerHeight <= 600);
 
 onMount(async (): Promise<void> => {
