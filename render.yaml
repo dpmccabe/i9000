@@ -118,7 +118,7 @@ services:
   - type: cron
     name: i9000-mb-check
     env: python
-    schedule: "*/15 * * * *"
+    schedule: "*/5 * * * *"
     autoDeploy: false
     buildCommand: echo "none"
     startCommand: 'curl -XPOST "https://${API_HOST}.onrender.com/mb/check" --header "x-api-key: ${API_KEY}"'
