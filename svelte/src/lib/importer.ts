@@ -18,7 +18,6 @@ import { writable, type Writable } from './tansuStore';
 
 type Presign = { fields: any; url: string };
 
-const maxConcurrentImports = 3;
 const startingStateCounts: Record<ImportState, number> = {
   todo: 0,
   uploading: 0,
@@ -44,127 +43,191 @@ importingMp3s.subscribe((theImportingMp3s: Map<string, ImportingMp3>): void => {
   stateCounts.set(sc);
 });
 
-let importingFn: number | null = null;
+type QueueItem = {
+  file: File;
+  state: ImportState;
+  failureCount: number;
+  failureMsg?: string;
+  track?: Track;
+};
 
 export function importTracks(
   files: File[],
   artistGenres: Map<string, ImportArtistGenre>
 ): void {
-  const impMap = new Map<string, ImportingMp3>();
-
-  for (const file of files) {
-    if (file.name.toLowerCase().endsWith('.mp3')) {
-      impMap.set(file.name, { file: file, state: 'todo', failureCount: 0 });
-    }
-  }
-
-  if (impMap.size === 0) {
-    logMessage('No MP3 files', 'error');
-    return;
-  }
-
-  importingMp3s.update(
-    (currentImpMap: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
-      return new Map([...currentImpMap, ...impMap]);
-    }
-  );
-
-  importingFn ||= window.setInterval(processImportQueue, 500, artistGenres);
+  ImportQueue.enqueue(files, artistGenres);
 }
 
-function processImportQueue(
-  artistGenres: Map<string, ImportArtistGenre>
-): void {
-  importingMp3s.set(importingMp3s.get());
-  let nextImportKey: null | string = null;
+export class ImportQueue {
+  private static queue: Map<string, QueueItem> = new Map();
+  private static activeCount = 0;
 
-  for (const [filename, impMp3] of importingMp3s.get()!) {
-    if (nextImportKey == null && ['todo', 'retrying'].includes(impMp3.state)) {
-      nextImportKey = filename;
+  private static readonly maxConcurrent = 3;
+  private static retryDelay = 500; // ms
+  private static maxDelay = 25000; // 25s
+
+  private static processing = false;
+
+  public static enqueue(
+    files: File[],
+    artistGenres: Map<string, ImportArtistGenre>
+  ): void {
+    for (const file of files) {
+      if (!file.name.toLowerCase().endsWith('.mp3')) continue;
+
+      if (!ImportQueue.queue.has(file.name)) {
+        ImportQueue.queue.set(file.name, {
+          file,
+          state: 'todo',
+          failureCount: 0,
+        });
+      }
+    }
+
+    importingMp3s.set(ImportQueue.queue);
+    void ImportQueue.process(artistGenres);
+  }
+
+  private static async process(
+    artistGenres: Map<string, ImportArtistGenre>
+  ): Promise<void> {
+    if (ImportQueue.processing) return;
+    ImportQueue.processing = true;
+
+    try {
+      while (true) {
+        // fill available worker slots
+        while (
+          ImportQueue.activeCount < ImportQueue.maxConcurrent &&
+          ImportQueue.hasPending()
+        ) {
+          const next = ImportQueue.nextItem();
+          if (!next) break;
+
+          ImportQueue.startItem(next, artistGenres);
+        }
+
+        if (!ImportQueue.hasPending() && ImportQueue.activeCount === 0) {
+          logMessage('Done importing MP3 files', 'success');
+          break;
+        }
+
+        // wait briefly before checking again (not polling work, just coordination)
+        await new Promise((r) => setTimeout(r, 100));
+      }
+    } finally {
+      ImportQueue.processing = false;
     }
   }
 
-  const curStateCounts: Record<ImportState, number> = stateCounts.get();
+  private static hasPending(): boolean {
+    for (const item of ImportQueue.queue.values()) {
+      if (item.state === 'todo' || item.state === 'retrying') return true;
+    }
+    return false;
+  }
 
-  if (
-    curStateCounts.todo + curStateCounts.uploading + curStateCounts.retrying ===
-    0
-  ) {
-    logMessage('Done importing MP3s files', 'success');
-    clearImportingFn();
-  } else if (
-    nextImportKey != null &&
-    curStateCounts.uploading < maxConcurrentImports
-  ) {
-    importingMp3s.update(
-      (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
-        im.get(nextImportKey!)!.state = 'uploading';
-        return im;
+  private static nextItem(): [string, QueueItem] | null {
+    for (const entry of ImportQueue.queue.entries()) {
+      const [, item] = entry;
+      if (item.state === 'todo' || item.state === 'retrying') {
+        return entry;
       }
-    );
+    }
+    return null;
+  }
 
-    importSingleTrack(
-      importingMp3s.get()!.get(nextImportKey)!.file,
-      artistGenres
-    )
-      .then((track: Track): void => {
-        importingMp3s.update(
-          (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
-            im.get(nextImportKey!)!.state = 'success';
-            im.get(nextImportKey!)!.track = track;
-            return im;
-          }
-        );
+  private static startItem(
+    [key, item]: [string, QueueItem],
+    artistGenres: Map<string, ImportArtistGenre>
+  ): void {
+    item.state = 'uploading';
+    ImportQueue.activeCount++;
+    importingMp3s.set(ImportQueue.queue);
+
+    ImportQueue.runItem(key, item, artistGenres)
+      .then((track) => {
+        item.state = 'success';
+        item.track = track;
+        ImportQueue.retryDelay = 500; // reset backoff
       })
-      .catch((e: unknown): void => {
+      .catch((e: unknown) => {
         if (e instanceof Error) {
-          importingMp3s.update(
-            (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
-              if (
-                e.message.includes('already exists') ||
-                im.get(nextImportKey!)!.failureCount === 3
-              ) {
-                im.get(nextImportKey!)!.state = 'failed';
-              } else {
-                im.get(nextImportKey!)!.state = 'retrying';
-                im.get(nextImportKey!)!.failureCount++;
-              }
+          item.failureMsg = e.message;
 
-              im.get(nextImportKey!)!.failureMsg = e.message;
-              return im;
-            }
-          );
-        } else {
-          console.log(e);
+          if (e.message.includes('already exists') || item.failureCount >= 3) {
+            item.state = 'failed';
+          } else {
+            item.state = 'retrying';
+            item.failureCount++;
+          }
+        }
+      })
+      .finally(() => {
+        ImportQueue.activeCount--;
+        importingMp3s.set(ImportQueue.queue);
+
+        if (item.state === 'retrying') {
+          ImportQueue.scheduleRetry(artistGenres);
         }
       });
   }
-}
 
-async function importSingleTrack(
-  file: File,
-  artistGenres: Map<string, ImportArtistGenre>
-): Promise<Track> {
-  const presign = await preSignUpload(file);
-  await uploadToS3(presign, file);
-  const tags = await fingerprintAndGetId3Tags(file);
+  private static scheduleRetry(
+    artistGenres: Map<string, ImportArtistGenre>
+  ): void {
+    ImportQueue.retryDelay = Math.min(
+      ImportQueue.maxDelay,
+      ImportQueue.retryDelay * 1.5
+    );
 
-  const track: Track = applyId3Tags(
-    tags,
-    file.size,
-    // @ts-ignore
-    file.filepath,
-    artistGenres
-  );
+    window.setTimeout(() => {
+      void ImportQueue.process(artistGenres);
+    }, ImportQueue.retryDelay);
+  }
 
-  await insertTracks([track]);
+  private static async runItem(
+    key: string,
+    item: QueueItem,
+    artistGenres: Map<string, ImportArtistGenre>
+  ): Promise<Track> {
+    const file = item.file;
 
-  const importPlaylist: Playlist = playlists
-    .get()
-    .find((p: Playlist): boolean => p.name === 'Import')!;
+    const presign = await preSignUpload(file);
+    await uploadToS3(presign, file);
 
-  await appendTracksToPlaylist(importPlaylist, [track.id!], false);
-  return track;
+    const tags = await fingerprintAndGetId3Tags(file);
+
+    const track = applyId3Tags(
+      tags,
+      file.size,
+      // @ts-ignore
+      file.filepath,
+      artistGenres
+    );
+
+    await insertTracks([track]);
+
+    const importPlaylist: Playlist = playlists
+      .get()
+      .find((p) => p.name === 'Import')!;
+
+    await appendTracksToPlaylist(importPlaylist, [track.id!], false);
+
+    return track;
+  }
+
+  public static remove(filename: string): void {
+    ImportQueue.queue.delete(filename);
+    importingMp3s.set(ImportQueue.queue);
+  }
+
+  public static clean(): void {
+    for (const [k, v] of ImportQueue.queue) {
+      if (v.state === 'success') ImportQueue.queue.delete(k);
+    }
+    importingMp3s.set(ImportQueue.queue);
+  }
 }
 
 async function preSignUpload(file: File): Promise<Presign> {
@@ -334,32 +397,4 @@ function applyId3Tags(
   }
 
   return track;
-}
-
-export function clearImportingFn(): void {
-  if (importingFn != null) {
-    window.clearInterval(importingFn);
-    importingFn = null;
-  }
-}
-
-export function cleanImportQueue(): void {
-  importingMp3s.update(
-    (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
-      for (const [filename, impMp3] of im) {
-        if (impMp3.state === 'success') im.delete(filename);
-      }
-
-      return im;
-    }
-  );
-}
-
-export function removeFromImportQueue(filename: string): void {
-  importingMp3s.update(
-    (im: Map<string, ImportingMp3>): Map<string, ImportingMp3> => {
-      im.delete(filename);
-      return im;
-    }
-  );
 }

@@ -11,7 +11,7 @@
         href="#top"
         class="m-closer"
         role="button"
-        on:click|preventDefault="{() => cleanImportQueue()}"
+        on:click|preventDefault="{() => ImportQueue.clean()}"
         ><Fa icon="{faBroom}" fw size="lg" /></a>
 
       <div id="state-counts">
@@ -31,7 +31,7 @@
                   href="#top"
                   role="button"
                   on:click|preventDefault="{() =>
-                    removeFromImportQueue(filename)}"
+                    ImportQueue.remove(filename)}"
                   ><Fa icon="{faClose}" fw /></a>
               </td>
               <td class="filename truncatable">{filename}</td>
@@ -59,12 +59,11 @@ import { faBroom, faClose } from '@fortawesome/free-solid-svg-icons';
 import { onMount } from 'svelte';
 import Fa from 'svelte-fa/src/fa.svelte';
 import {
-  cleanImportQueue,
   getAllArtistGenres,
   type ImportArtistGenre,
   importingMp3s,
+  ImportQueue,
   importTracks,
-  removeFromImportQueue,
   stateCounts,
 } from '../../internal';
 import Modal from '../modalComponents/Modal.svelte';
