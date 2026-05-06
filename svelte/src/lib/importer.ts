@@ -63,8 +63,8 @@ export class ImportQueue {
   private static activeCount = 0;
 
   private static readonly maxConcurrent = 3;
-  private static retryDelay = 500; // ms
-  private static maxDelay = 25000; // 25s
+  private static retryDelay = 2000; // 2s
+  private static maxDelay = 60000; // 60s
 
   private static processing = false;
 
@@ -155,7 +155,7 @@ export class ImportQueue {
         if (e instanceof Error) {
           item.failureMsg = e.message;
 
-          if (e.message.includes('already exists') || item.failureCount >= 3) {
+          if (e.message.includes('already exists') || item.failureCount >= 5) {
             item.state = 'failed';
           } else {
             item.state = 'retrying';
@@ -387,6 +387,7 @@ function applyId3Tags(
             'Techno',
             'Trip',
             'Ambient',
+            'House',
           ].join('|'),
           'gi'
         ).test(track.genre!)
