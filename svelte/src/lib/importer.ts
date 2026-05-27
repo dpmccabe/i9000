@@ -101,7 +101,7 @@ export class ImportQueue {
           ImportQueue.activeCount < ImportQueue.maxConcurrent &&
           ImportQueue.hasPending()
         ) {
-          const next = ImportQueue.nextItem();
+          const next: QueueItem | null = ImportQueue.nextItem();
           if (!next) break;
 
           ImportQueue.startItem(next, artistGenres);
@@ -127,41 +127,66 @@ export class ImportQueue {
     return false;
   }
 
-  private static nextItem(): [string, QueueItem] | null {
+  private static nextItem(): QueueItem | null {
     for (const entry of ImportQueue.queue.entries()) {
       const [, item] = entry;
       if (item.state === 'todo' || item.state === 'retrying') {
-        return entry;
+        return item;
       }
     }
     return null;
   }
 
   private static startItem(
-    [key, item]: [string, QueueItem],
+    item: QueueItem,
     artistGenres: Map<string, ImportArtistGenre>
   ): void {
     item.state = 'uploading';
     ImportQueue.activeCount++;
     importingMp3s.set(ImportQueue.queue);
 
-    ImportQueue.runItem(key, item, artistGenres)
+    ImportQueue.runItem(item, artistGenres)
       .then((track) => {
         item.state = 'success';
         item.track = track;
         ImportQueue.retryDelay = 500; // reset backoff
       })
       .catch((e: unknown) => {
-        if (e instanceof Error) {
-          item.failureMsg = e.message;
+        let message: string = 'Unknown import error';
 
-          if (e.message.includes('already exists') || item.failureCount >= 5) {
-            item.state = 'failed';
-          } else {
-            item.state = 'retrying';
-            item.failureCount++;
+        if (e instanceof Error) {
+          // Standard Error objects
+          message = e.message;
+        } else if (
+          // Some libraries throw plain objects with a message field
+          typeof e === 'object' &&
+          e !== null &&
+          'message' in e &&
+          typeof (e as { message?: unknown }).message === 'string'
+        ) {
+          message = (e as { message: string }).message;
+        } else if (typeof e === 'string') {
+          // String throws
+          message = e;
+        } else {
+          // Fallback serialization
+          try {
+            message = JSON.stringify(e);
+          } catch {
+            message = 'Unknown import error';
           }
         }
+
+        item.failureMsg = message;
+
+        if (message.includes('already exists') || item.failureCount >= 5) {
+          item.state = 'failed';
+        } else {
+          item.state = 'retrying';
+          item.failureCount++;
+        }
+
+        console.error('Import failed:', e);
       })
       .finally(() => {
         ImportQueue.activeCount--;
@@ -187,7 +212,6 @@ export class ImportQueue {
   }
 
   private static async runItem(
-    key: string,
     item: QueueItem,
     artistGenres: Map<string, ImportArtistGenre>
   ): Promise<Track> {
